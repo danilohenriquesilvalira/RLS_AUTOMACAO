@@ -2,11 +2,9 @@
 import { useEffect } from 'react';
 import Layout from '@/components/layout/Layout';
 import HeroSection from '@/components/sections/home/HeroSection';
-import FeaturesSection from '@/components/sections/home/FeaturesSection';
 import SolutionsSection from '@/components/sections/home/SolutionsSection';
 import IndustriesSection from '@/components/sections/home/IndustriesSection';
-import TestimonialsSection from '@/components/sections/home/TestimonialsSection';
-import CtaSection from '@/components/sections/home/CtaSection';
+
 
 // Gerenciador de animações
 import { animateOnScroll } from '@/animations/gsapAnimations';
@@ -26,11 +24,8 @@ const HomePage = () => {
   return (
     <Layout>
       <HeroSection />
-      <FeaturesSection />
       <SolutionsSection />
       <IndustriesSection />
-      <TestimonialsSection />
-      <CtaSection />
     </Layout>
   );
 };

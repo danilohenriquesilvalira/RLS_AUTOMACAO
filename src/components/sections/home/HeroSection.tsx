@@ -54,7 +54,7 @@ const HeroSection = () => {
         {/* Imagem de fundo */}
         <div 
           className="absolute inset-0 bg-cover bg-center" 
-          style={{ backgroundImage: `url('${import.meta.env.BASE_URL}images/hero-bg.avif')` }} 
+          style={{ backgroundImage: `url('${import.meta.env.BASE_URL}images/Automacao.png')` }} 
         />
         
         {/* Overlay gradiente */}
