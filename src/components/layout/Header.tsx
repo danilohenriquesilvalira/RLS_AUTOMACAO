@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, ChevronDown, Phone, Send, MessageSquare, ExternalLink, Calendar, MessageCircle } from 'lucide-react';
+import { Menu, X, ChevronDown, MessageCircle, ExternalLink, Calendar, MessageSquare } from 'lucide-react';
 import Button from '@/components/ui/Button';
 
 // Define um tipo específico para os itens de navegação
@@ -134,17 +134,6 @@ const Header = () => {
     }
   };
 
-  // Formata o número de telefone para exibição
-  const formatPhoneNumber = (phoneNumber: string) => {
-    // Remove o código do país para exibição mais limpa
-    const displayNumber = phoneNumber.includes('+') 
-      ? phoneNumber.substring(4) // Remove +351
-      : phoneNumber;
-    
-    // Formata o número com espaços para melhor legibilidade
-    return displayNumber.replace(/(\d{3})(\d{3})(\d{3})/, '$1 $2 $3');
-  };
-
   return (
     <header 
       ref={headerRef}
@@ -204,7 +193,7 @@ const Header = () => {
                       {location.pathname.includes(item.path) && (
                         <motion.div 
                           className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary-600 rounded-full"
-                          layoutId="navIndicator"
+                          layoutId={`desktopIndicator-${item.title}`}
                           initial={{ width: 0 }}
                           animate={{ width: '100%' }}
                           transition={{ type: "spring", stiffness: 300, damping: 30 }}
@@ -262,7 +251,7 @@ const Header = () => {
                                 {location.pathname === dropdownItem.path && (
                                   <motion.div 
                                     className="w-1 h-full absolute left-0 top-0 bg-primary-600 rounded-r-full"
-                                    layoutId={`dropdownIndicator-${item.title}`}
+                                    layoutId={`dropdownIndicator-${item.title}-${dropdownItem.title}`}
                                   />
                                 )}
                               </Link>
@@ -285,7 +274,7 @@ const Header = () => {
                     {location.pathname === item.path && (
                       <motion.div 
                         className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary-600 rounded-full"
-                        layoutId="navIndicator"
+                        layoutId={`desktopIndicator-${item.title}`}
                         initial={{ width: 0 }}
                         animate={{ width: '100%' }}
                         transition={{ type: "spring", stiffness: 300, damping: 30 }}
@@ -307,41 +296,9 @@ const Header = () => {
             ))}
           </nav>
 
-          {/* Desktop CTA - Redesenhado */}
-          <div className="hidden lg:flex items-center gap-6">
-            {/* Botão de contato com visual aprimorado */}
-            <motion.a 
-              href="tel:+351935479757" 
-              className="flex items-center gap-3 bg-gray-50 px-4 py-2 rounded-full border border-gray-100 hover:border-primary-200 transition-all group"
-              whileHover={{ scale: 1.03, boxShadow: "0 4px 12px rgba(0,0,0,0.08)" }}
-              whileTap={{ scale: 0.97 }}
-            >
-              <motion.div
-                className="bg-primary-100 text-primary-600 p-2 rounded-full overflow-hidden relative"
-                whileHover={{ 
-                  rotate: [0, -10, 10, -5, 5, 0],
-                  transition: { duration: 0.5 }
-                }}
-              >
-                <Phone size={18} className="relative z-10" />
-                <motion.div 
-                  className="absolute inset-0 bg-primary-200 rounded-full"
-                  initial={{ scale: 0 }}
-                  whileHover={{ scale: 1 }}
-                  transition={{ duration: 0.3 }}
-                />
-              </motion.div>
-              
-              {/* Número formatado de forma mais elegante */}
-              <div className="flex flex-col">
-                <span className="text-xs text-gray-500 font-medium">Fale Conosco</span>
-                <span className="text-gray-700 font-medium group-hover:text-primary-600 transition-colors">
-                  {formatPhoneNumber('+351935479757')}
-                </span>
-              </div>
-            </motion.a>
-            
-            {/* Botão "Solicitar Orçamento" melhorado */}
+          {/* Desktop CTA - Simplificado (removido o "Fale Conosco") */}
+          <div className="hidden lg:flex items-center">
+            {/* Botão "Solicitar Orçamento" */}
             <motion.div
               whileHover={{ 
                 scale: 1.05, 
@@ -405,7 +362,7 @@ const Header = () => {
         </div>
       </div>
 
-      {/* Mobile Navigation */}
+      {/* Mobile Navigation - Improved */}
       <AnimatePresence>
         {isMenuOpen && (
           <motion.div
@@ -428,26 +385,21 @@ const Header = () => {
                   {item.hasDropdown ? (
                     <>
                       <button
-                        className={`flex justify-between items-center w-full py-2 text-gray-700 font-medium relative ${
+                        className={`flex justify-between items-center w-full py-2 text-gray-700 font-medium ${
                           location.pathname.includes(item.path) ? 'text-primary-600 font-semibold' : ''
                         }`}
                         onClick={() => handleToggleDropdown(item, !item.isOpen)}
                       >
-                        {item.title}
+                        {/* Item ativo usa uma borda esquerda ao invés de um elemento absolute */}
+                        <span className={`pl-2 ${location.pathname.includes(item.path) ? 'border-l-2 border-primary-600' : ''}`}>
+                          {item.title}
+                        </span>
                         <motion.div
                           animate={{ rotate: item.isOpen ? 180 : 0 }}
                           transition={{ duration: 0.3 }}
                         >
                           <ChevronDown size={16} />
                         </motion.div>
-                        
-                        {/* Indicador de item ativo */}
-                        {location.pathname.includes(item.path) && (
-                          <motion.div 
-                            className="absolute left-0 top-0 bottom-0 w-1 bg-primary-600 rounded-r-full"
-                            layoutId={`mobileNavIndicator-${idx}`}
-                          />
-                        )}
                       </button>
                       <AnimatePresence>
                         {item.isOpen && item.dropdownItems && (
@@ -497,51 +449,24 @@ const Header = () => {
                   ) : (
                     <Link
                       to={item.path}
-                      className={`block py-2 text-gray-700 font-medium relative ${
-                        location.pathname === item.path ? 'text-primary-600 font-semibold' : ''
+                      className={`block py-2 text-gray-700 font-medium ${
+                        location.pathname === item.path ? 'text-primary-600 font-semibold border-l-2 border-primary-600 pl-2' : ''
                       }`}
                     >
                       {item.title}
-                      
-                      {/* Indicador de item ativo */}
-                      {location.pathname === item.path && (
-                        <motion.div 
-                          className="absolute left-0 top-0 bottom-0 w-1 bg-primary-600 rounded-r-full"
-                          layoutId={`mobileNavIndicator-${idx}`}
-                        />
-                      )}
                     </Link>
                   )}
                 </motion.div>
               ))}
 
-              {/* Elementos de contato no mobile */}
+              {/* Elementos de contato no mobile - Simplificado */}
               <motion.div 
                 className="mt-6 space-y-4"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3, duration: 0.3 }}
               >
-                {/* Telefone no mobile - redesenhado */}
-                <motion.a 
-                  href="tel:+351935479757" 
-                  className="flex items-center gap-3 bg-gray-50 p-3 rounded-lg border border-gray-100 hover:border-primary-200 transition-all"
-                  whileHover={{ scale: 1.02, backgroundColor: "#f9fafb" }}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  <div className="bg-primary-100 text-primary-600 p-2 rounded-full">
-                    <Phone size={20} />
-                  </div>
-                  
-                  <div className="flex flex-col">
-                    <span className="text-xs text-gray-500 font-medium">Ligue para nós</span>
-                    <span className="text-gray-700 font-medium">
-                      {formatPhoneNumber('+351935479757')}
-                    </span>
-                  </div>
-                </motion.a>
-                
-                {/* Botão de orçamento no mobile - redesenhado */}
+                {/* Botão de orçamento no mobile */}
                 <motion.div
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
@@ -556,14 +481,6 @@ const Header = () => {
                   >
                     <Calendar className="w-5 h-5" />
                     <span>Agendar Orçamento</span>
-                    
-                    {/* Efeito de deslocamento da direita para a esquerda */}
-                    <motion.div
-                      className="absolute -inset-1 bg-white/20"
-                      initial={{ x: "100%" }}
-                      whileHover={{ x: "-100%" }}
-                      transition={{ duration: 1, repeat: Infinity, repeatType: "mirror" }}
-                    />
                   </Button>
                 </motion.div>
                 

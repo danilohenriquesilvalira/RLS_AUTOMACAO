@@ -29,35 +29,28 @@ const Footer = () => {
       { title: 'Carreiras', path: '/carreiras' },
       { title: 'Notícias', path: '/noticias' },
       { title: 'Contato', path: '/contato' }
-    ],
-    suporte: [
-      { title: 'FAQ', path: '/suporte/faq' },
-      { title: 'Assistência Técnica', path: '/suporte/assistencia' },
-      { title: 'Treinamentos', path: '/suporte/treinamentos' },
-      { title: 'Documentação', path: '/suporte/documentacao' },
-      { title: 'Portal do Cliente', path: '/cliente' }
     ]
   };
 
   // Dados de Contato
   const contactInfo = [
     { 
-      icon: <MapPin size={18} className="text-primary-500" />, 
+      icon: <MapPin size={18} className="text-blue-500" />, 
       text: 'Estrada Nacional 247, Km 64.5, Parque Charal, Armazém 12 2705-837 Terrugem, Sintra, Lisboa, Portugal',
       href: 'https://maps.google.com/?q=Estrada+Nacional+247+Km+64.5+Parque+Charal+Armazém+12+2705-837+Terrugem+Sintra+Lisboa+Portugal'
     },
     { 
-      icon: <Phone size={18} className="text-primary-500" />, 
+      icon: <Phone size={18} className="text-blue-500" />, 
       text: '+351 935 479 757',
       href: 'tel:+351935479757'
     },
     { 
-      icon: <Mail size={18} className="text-primary-500" />, 
+      icon: <Mail size={18} className="text-blue-500" />, 
       text: 'danilosilvalira@hotmail.com',
       href: 'mailto:danilosilvalira@hotmail.com'
     },
     { 
-      icon: <Clock size={18} className="text-primary-500" />, 
+      icon: <Clock size={18} className="text-blue-500" />, 
       text: 'Segunda a Sexta: 9h às 18h',
       href: '#'
     }
@@ -78,7 +71,7 @@ const Footer = () => {
         <div className="container mx-auto px-4 py-10">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
             <div>
-              <h3 className="text-2xl font-bold text-white mb-3">Transforme sua indústria agora</h3>
+              <h3 className="text-2xl font-bold text-blue-400 mb-3">Transforme sua indústria agora</h3>
               <p className="text-gray-400">
                 Entre em contato para uma avaliação personalizada das suas necessidades industriais.
               </p>
@@ -86,7 +79,7 @@ const Footer = () => {
             <div className="flex flex-col md:flex-row gap-4">
               <a 
                 href="tel:+351935479757" 
-                className="px-6 py-3 bg-white text-primary-600 rounded-lg font-medium hover:bg-gray-100 transition-colors flex items-center justify-center"
+                className="px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-500 transition-colors flex items-center justify-center"
               >
                 <Phone size={18} className="mr-2" />
                 Ligar Agora
@@ -107,7 +100,7 @@ const Footer = () => {
 
       {/* Footer Main */}
       <div className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10">
           {/* Logo e informações */}
           <div className="lg:col-span-2">
             <Link to="/" className="flex items-center space-x-2 mb-6">
@@ -140,13 +133,13 @@ const Footer = () => {
 
           {/* Links */}
           <div>
-            <h3 className="text-lg font-semibold text-white mb-4">Soluções</h3>
+            <h3 className="text-lg font-semibold text-blue-400 mb-4">Soluções</h3>
             <ul className="space-y-2">
               {footerLinks.soluções.map((link) => (
                 <li key={link.title}>
                   <Link 
                     to={link.path} 
-                    className="text-gray-400 hover:text-primary-400 transition-colors"
+                    className="text-gray-400 hover:text-blue-400 transition-colors"
                   >
                     {link.title}
                   </Link>
@@ -156,13 +149,13 @@ const Footer = () => {
           </div>
 
           <div>
-            <h3 className="text-lg font-semibold text-white mb-4">Indústrias</h3>
+            <h3 className="text-lg font-semibold text-blue-400 mb-4">Indústrias</h3>
             <ul className="space-y-2">
               {footerLinks.indústrias.map((link) => (
                 <li key={link.title}>
                   <Link 
                     to={link.path} 
-                    className="text-gray-400 hover:text-primary-400 transition-colors"
+                    className="text-gray-400 hover:text-blue-400 transition-colors"
                   >
                     {link.title}
                   </Link>
@@ -172,29 +165,13 @@ const Footer = () => {
           </div>
 
           <div>
-            <h3 className="text-lg font-semibold text-white mb-4">Empresa</h3>
+            <h3 className="text-lg font-semibold text-blue-400 mb-4">Empresa</h3>
             <ul className="space-y-2">
               {footerLinks.empresa.map((link) => (
                 <li key={link.title}>
                   <Link 
                     to={link.path} 
-                    className="text-gray-400 hover:text-primary-400 transition-colors"
-                  >
-                    {link.title}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          <div>
-            <h3 className="text-lg font-semibold text-white mb-4">Suporte</h3>
-            <ul className="space-y-2">
-              {footerLinks.suporte.map((link) => (
-                <li key={link.title}>
-                  <Link 
-                    to={link.path} 
-                    className="text-gray-400 hover:text-primary-400 transition-colors"
+                    className="text-gray-400 hover:text-blue-400 transition-colors"
                   >
                     {link.title}
                   </Link>
@@ -220,7 +197,7 @@ const Footer = () => {
                   href={social.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-9 h-9 rounded-full bg-gray-800 flex items-center justify-center text-gray-400 hover:bg-primary-600 hover:text-white transition-colors"
+                  className="w-9 h-9 rounded-full bg-gray-800 flex items-center justify-center text-gray-400 hover:bg-blue-600 hover:text-white transition-colors"
                   aria-label={social.name}
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
