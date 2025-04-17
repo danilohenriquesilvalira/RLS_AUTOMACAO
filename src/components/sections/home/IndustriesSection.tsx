@@ -8,25 +8,16 @@ import industriesDetailsData from '@/data/industriesDetailsData';
 const IndustriesSection = () => {
   const [hoveredCard, setHoveredCard] = useState<string | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
-  const [visibleCards, setVisibleCards] = useState(4);
-  const [currentPage, setCurrentPage] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
   const carouselRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
   const [scrollLeft, setScrollLeft] = useState(0);
   
-  // Determine visible cards based on screen size
+  // Check if mobile view
   useEffect(() => {
     const handleResize = () => {
-      if (window.innerWidth < 640) {
-        setVisibleCards(1);
-      } else if (window.innerWidth < 768) {
-        setVisibleCards(2);
-      } else if (window.innerWidth < 1024) {
-        setVisibleCards(2);
-      } else {
-        setVisibleCards(4);
-      }
+      setIsMobile(window.innerWidth < 768);
     };
     
     handleResize(); // Initial check
@@ -34,39 +25,38 @@ const IndustriesSection = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Total number of pages in the carousel
-  const totalPages = Math.ceil(industriesDetailsData.length / visibleCards);
-
-  // Navigate carousel by page
-  const navigateCarousel = (direction: 'prev' | 'next') => {
-    if (direction === 'prev') {
-      setCurrentPage(prev => (prev > 0 ? prev - 1 : totalPages - 1));
-    } else {
-      setCurrentPage(prev => (prev < totalPages - 1 ? prev + 1 : 0));
-    }
-  };
-
-  // Auto-rotate carousel on smaller screens
+  // Auto-rotate carousel on mobile
   useEffect(() => {
-    if (visibleCards >= 4 || isDragging) return;
+    if (!isMobile || isDragging) return;
     
     const interval = setInterval(() => {
-      navigateCarousel('next');
-    }, 6000); // Change slide every 6 seconds
+      setActiveIndex((prev) => (prev + 1) % industriesDetailsData.length);
+    }, 5000); // Change slide every 5 seconds
     
     return () => clearInterval(interval);
-  }, [visibleCards, isDragging, totalPages]);
+  }, [isMobile, isDragging]);
 
-  // Handle drag events for carousel
+  // Scroll carousel to active index
+  useEffect(() => {
+    if (isMobile && carouselRef.current) {
+      const scrollAmount = activeIndex * carouselRef.current.offsetWidth;
+      carouselRef.current.scrollTo({
+        left: scrollAmount,
+        behavior: 'smooth'
+      });
+    }
+  }, [activeIndex, isMobile]);
+
+  // Handle drag events for mobile carousel
   const handleMouseDown = (e: React.MouseEvent) => {
-    if (visibleCards >= 4) return; // Only enable dragging on smaller screens
+    if (!isMobile) return;
     setIsDragging(true);
     setStartX(e.pageX - (carouselRef.current?.offsetLeft || 0));
     setScrollLeft(carouselRef.current?.scrollLeft || 0);
   };
 
   const handleTouchStart = (e: React.TouchEvent) => {
-    if (visibleCards >= 4) return;
+    if (!isMobile) return;
     setIsDragging(true);
     setStartX(e.touches[0].pageX - (carouselRef.current?.offsetLeft || 0));
     setScrollLeft(carouselRef.current?.scrollLeft || 0);
@@ -95,43 +85,24 @@ const IndustriesSection = () => {
     if (!isDragging) return;
     setIsDragging(false);
     
-    if (carouselRef.current && visibleCards < 4) {
-      // Calculate which page to snap to
-      const cardWidth = carouselRef.current.offsetWidth / visibleCards;
-      const newPage = Math.round(carouselRef.current.scrollLeft / (cardWidth * visibleCards));
-      setCurrentPage(Math.min(Math.max(newPage, 0), totalPages - 1));
-      
-      // Smooth scroll to the selected page
-      carouselRef.current.scrollTo({
-        left: newPage * (cardWidth * visibleCards),
-        behavior: 'smooth'
-      });
+    if (carouselRef.current) {
+      const cardWidth = carouselRef.current.offsetWidth;
+      const newIndex = Math.round(carouselRef.current.scrollLeft / cardWidth);
+      setActiveIndex(Math.min(Math.max(newIndex, 0), industriesDetailsData.length - 1));
     }
   };
 
-  // Scroll to current page when it changes
-  useEffect(() => {
-    if (carouselRef.current && visibleCards < 4) {
-      const cardWidth = carouselRef.current.offsetWidth / visibleCards;
-      carouselRef.current.scrollTo({
-        left: currentPage * (cardWidth * visibleCards),
-        behavior: 'smooth'
-      });
-    }
-  }, [currentPage, visibleCards]);
+  const navigateCarousel = (direction: 'prev' | 'next') => {
+    setActiveIndex(prev => {
+      if (direction === 'prev') {
+        return prev === 0 ? industriesDetailsData.length - 1 : prev - 1;
+      } else {
+        return (prev + 1) % industriesDetailsData.length;
+      }
+    });
+  };
 
   // Animation variants
-  const sectionVariants = {
-    hidden: { opacity: 0 },
-    visible: { 
-      opacity: 1,
-      transition: { 
-        staggerChildren: 0.1,
-        delayChildren: 0.2 
-      }
-    }
-  };
-
   const cardVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: (i: number) => ({
@@ -206,8 +177,8 @@ const IndustriesSection = () => {
           </motion.div>
         </motion.div>
 
-        {/* Carousel Navigation (visible when in carousel mode) */}
-        {visibleCards < 4 && (
+        {/* Carousel Navigation */}
+        {isMobile && (
           <div className="flex justify-between items-center mb-6">
             <button 
               onClick={() => navigateCarousel('prev')}
@@ -218,14 +189,14 @@ const IndustriesSection = () => {
             </button>
             
             <div className="flex space-x-2">
-              {Array.from({ length: totalPages }).map((_, index) => (
+              {industriesDetailsData.map((_, index) => (
                 <button
                   key={index}
-                  onClick={() => setCurrentPage(index)}
+                  onClick={() => setActiveIndex(index)}
                   className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                    currentPage === index ? 'bg-blue-600 w-6' : 'bg-gray-300'
+                    activeIndex === index ? 'bg-blue-600 w-6' : 'bg-gray-300'
                   }`}
-                  aria-label={`Ir para página ${index + 1}`}
+                  aria-label={`Ir para setor ${index + 1}`}
                 />
               ))}
             </div>
@@ -241,15 +212,11 @@ const IndustriesSection = () => {
         )}
 
         {/* Industries Grid / Carousel */}
-        <motion.div
+        <div
           ref={carouselRef}
-          variants={sectionVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-50px" }}
           className={`
-            ${visibleCards < 4 
-              ? 'flex overflow-x-auto snap-x snap-mandatory hide-scrollbar'
+            ${isMobile 
+              ? 'flex overflow-x-auto snap-x snap-mandatory hide-scrollbar' 
               : 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6'
             }
           `}
@@ -262,30 +229,26 @@ const IndustriesSection = () => {
           onTouchEnd={handleDragEnd}
           style={{ 
             scrollbarWidth: 'none',
-            msOverflowStyle: 'none'
+            msOverflowStyle: 'none',
+            WebkitOverflowScrolling: 'touch'
           }}
         >
           {industriesDetailsData.map((industry, index) => {
             // Referência ao ícone removida
             
-            // Calculate position for staggered animation
-            const positionIndex = visibleCards < 4 
-              ? index % visibleCards 
-              : index;
-            
             return (
               <motion.div
                 key={industry.id}
-                custom={positionIndex}
-                variants={cardVariants}
+                custom={index}
+                initial="hidden"
+                whileInView="visible"
                 whileHover="hover"
+                viewport={{ once: true, margin: "-50px" }}
+                variants={cardVariants}
                 className={`
                   relative overflow-hidden rounded-xl group cursor-pointer h-64
                   bg-white shadow-lg transform transition-all duration-300
-                  ${visibleCards < 4 
-                    ? `min-w-[calc(${100/visibleCards}% - ${(visibleCards-1)*16/visibleCards}px)] 
-                       mr-4 flex-shrink-0 snap-center` 
-                    : ''}
+                  ${isMobile ? 'min-w-full mr-4 flex-shrink-0 snap-center' : ''}
                 `}
                 onMouseEnter={() => setHoveredCard(industry.id)}
                 onMouseLeave={() => setHoveredCard(null)}
@@ -341,7 +304,7 @@ const IndustriesSection = () => {
                     
                     {/* Description with improved animation */}
                     <AnimatePresence>
-                      {(hoveredCard === industry.id || visibleCards === 1) && (
+                      {(hoveredCard === industry.id || isMobile) && (
                         <motion.div
                           initial={{ opacity: 0, height: 0 }}
                           animate={{ opacity: 1, height: 'auto' }}
@@ -384,7 +347,7 @@ const IndustriesSection = () => {
               </motion.div>
             );
           })}
-        </motion.div>
+        </div>
       </div>
     </section>
   );
@@ -392,7 +355,7 @@ const IndustriesSection = () => {
 
 export default IndustriesSection;
 
-// Adicione este CSS ao seu arquivo global de estilos (se já não tiver adicionado)
+// Adicione este CSS ao seu arquivo global de estilos
 /*
 .hide-scrollbar::-webkit-scrollbar {
   display: none;
