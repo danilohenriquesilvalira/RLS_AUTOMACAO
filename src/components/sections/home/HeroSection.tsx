@@ -1,7 +1,7 @@
 // src/components/sections/home/HeroSection.tsx
-import { useEffect, useRef } from 'react';
-import { motion } from 'framer-motion';
-import { ArrowRight, MessageCircle } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { motion, useScroll, useTransform } from 'framer-motion';
+import { ArrowRight, MessageCircle, ChevronDown } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -15,48 +15,61 @@ const HeroSection = () => {
   const bgRef = useRef<HTMLDivElement>(null);
   const yearCountRef = useRef<HTMLSpanElement>(null);
   const yearHighlightRef = useRef<HTMLDivElement>(null);
+  const [windowWidth, setWindowWidth] = useState(0);
+  
+  // Detecta dimensões da tela para ajustes responsivos
+  useEffect(() => {
+    const updateWindowDimensions = () => {
+      setWindowWidth(window.innerWidth);
+    };
+
+    // Inicializa com o tamanho atual da janela
+    updateWindowDimensions();
+    
+    // Adiciona listener para redimensionamento
+    window.addEventListener('resize', updateWindowDimensions);
+    
+    // Limpa listener ao desmontar
+    return () => window.removeEventListener('resize', updateWindowDimensions);
+  }, []);
+  
+  // Efeito parallax suave com Framer Motion
+  const { scrollYProgress } = useScroll({
+    target: heroRef,
+    offset: ["start start", "end start"]
+  });
+  
+  const contentY = useTransform(scrollYProgress, [0, 1], [0, 100]);
+  const bgY = useTransform(scrollYProgress, [0, 1], [0, -50]);
+  const opacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
+
+  // Calcula a posição ideal da imagem com base no tamanho da tela
+  const getBgPosition = () => {
+    // Para telas pequenas, centraliza mais no conteúdo importante da imagem
+    if (windowWidth < 640) {
+      return 'center 30%';  // Foco mais alto em telas pequenas
+    } else if (windowWidth < 1024) {
+      return 'center 40%';  // Ajuste para tablets
+    } else {
+      return 'center center'; // Centralizado em telas grandes
+    }
+  };
 
   useEffect(() => {
-    // Efeito de parallax no scroll
-    if (contentRef.current && bgRef.current) {
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: heroRef.current,
-          start: "top top",
-          end: "bottom top",
-          scrub: true
-        }
-      });
-
-      tl.to(contentRef.current, {
-        y: 50,
-        ease: "none"
-      });
-
-      tl.to(bgRef.current, {
-        y: -50,
-        ease: "none"
-      }, 0);
-
-      return () => {
-        if (tl.scrollTrigger) {
-          tl.scrollTrigger.kill();
-        }
-      };
-    }
-    
-    // Animar o contador de anos - com mais destaque
+    // Animar o contador de anos com GSAP
     if (yearCountRef.current) {
-      gsap.fromTo(
+      const tl = gsap.timeline();
+      
+      tl.fromTo(
         yearCountRef.current,
         { 
           textContent: "0",
-          color: "rgba(147, 197, 253, 0.7)" // Azul mais claro e transparente
+          opacity: 0.7
         },
         {
           duration: 2,
           textContent: "30",
-          color: "#38bdf8", // Azul mais vibrante no final
+          opacity: 1,
           ease: "power2.out",
           snap: { textContent: 1 },
           onUpdate: () => {
@@ -68,23 +81,20 @@ const HeroSection = () => {
             if (yearCountRef.current) {
               yearCountRef.current.style.transform = `scale(${scale})`;
             }
-          },
-          onComplete: () => {
-            // Animar destaque após contagem completa
-            if (yearHighlightRef.current) {
-              gsap.fromTo(
-                yearHighlightRef.current,
-                { width: 0, opacity: 0 },
-                { 
-                  width: "100%", 
-                  opacity: 1, 
-                  duration: 0.5,
-                  ease: "power1.out"
-                }
-              );
-            }
           }
         }
+      );
+      
+      tl.fromTo(
+        yearHighlightRef.current,
+        { width: 0, opacity: 0 },
+        { 
+          width: "100%", 
+          opacity: 1, 
+          duration: 0.5,
+          ease: "power1.out"
+        },
+        "-=0.3" // Começar um pouco antes do fim da animação anterior
       );
     }
   }, []);
@@ -94,12 +104,12 @@ const HeroSection = () => {
     const nextSection = document.querySelector('#about') || document.querySelector('section:nth-of-type(2)');
     if (nextSection) {
       gsap.to(window, {
-        duration: 0.3,
+        duration: 0.6,
         scrollTo: {
           y: nextSection,
           offsetY: 80
         },
-        ease: "power1.out"
+        ease: "power2.inOut"
       });
     }
   };
@@ -107,68 +117,86 @@ const HeroSection = () => {
   return (
     <section 
       ref={heroRef}
-      className="relative min-h-screen pt-32 pb-20 md:pt-40 md:pb-28 overflow-hidden"
+      className="relative h-screen flex items-center overflow-hidden bg-[#121212]"
       id="hero"
     >
-      {/* Background de imagem em tela cheia com overlay */}
-      <div ref={bgRef} className="absolute inset-0 z-0">
-        {/* Imagem de fundo */}
+      {/* Background sutilmente texturizado */}
+      <div className="absolute inset-0 bg-[#121212] opacity-90">
+        <div className="absolute inset-0 opacity-5 bg-[url('/images/grid-pattern.svg')] bg-repeat"></div>
+      </div>
+      
+      {/* Novo tratamento para o background da imagem - mais flexível e responsivo */}
+      <motion.div 
+        ref={bgRef} 
+        style={{ y: bgY }}
+        className="absolute inset-0 z-0"
+      >
+        {/* Imagem de fundo com tratamento responsivo melhorado */}
         <div 
-          className="absolute inset-0 bg-cover bg-center" 
-          style={{ backgroundImage: `url('${import.meta.env.BASE_URL}images/Automacao.png')` }} 
+          className="absolute inset-0 bg-no-repeat opacity-30 transition-opacity duration-500"
+          style={{ 
+            backgroundImage: `url('${import.meta.env.BASE_URL}images/Automacao.png')`,
+            backgroundSize: windowWidth < 768 ? 'contain' : 'cover',
+            backgroundPosition: getBgPosition(),
+            // Tratamento especial de escala para dispositivos maiores
+            transform: windowWidth >= 1280 ? 'scale(1.05)' : 'none',
+          }}
         />
         
-        {/* Overlay gradiente - melhorado sutilmente */}
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-900/90 via-indigo-900/85 to-blue-900/80" />
-        
-        {/* Elementos decorativos */}
-        <div className="absolute inset-0 overflow-hidden opacity-30">
-          {/* Linhas decorativas similares a circuitos */}
-          <div className="absolute top-1/3 right-1/4 w-40 h-1 bg-blue-300/20 transform rotate-45" />
-          <div className="absolute bottom-1/4 left-1/3 w-60 h-1 bg-indigo-300/20 transform -rotate-45" />
-        </div>
-      </div>
+        {/* Overlay gradiente customizado para melhorar a visibilidade do texto */}
+        <div className="absolute inset-0 bg-gradient-to-b from-[#121212]/80 via-[#121212]/60 to-[#121212]/90"></div>
+      </motion.div>
 
-      <div ref={contentRef} className="container mx-auto px-4 relative z-10">
-        <div className="max-w-3xl">
+      {/* Main Content */}
+      <div className="container mx-auto px-4 relative z-10">
+        <motion.div 
+          ref={contentRef}
+          style={{ y: contentY, opacity }}
+          className="max-w-3xl mx-auto lg:mx-0"
+        >
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2, duration: 0.6 }}
-            className="inline-block px-4 py-1 rounded-full bg-blue-100 text-blue-700 font-medium text-sm mb-6"
+            className="mb-8"
           >
-            Automação Industrial Inteligente em Portugal
+            <span className="inline-block px-5 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white font-medium text-sm shadow-lg">
+              Automação Industrial Inteligente em Portugal
+            </span>
           </motion.div>
           
           <motion.h1 
-            className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight text-white"
+            className="text-4xl md:text-6xl font-bold mb-6 leading-tight text-white"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3, duration: 0.8 }}
           >
             <span className="block">Soluções avançadas</span>
-            <span className="block text-3xl md:text-4xl lg:text-5xl text-blue-50/80 font-light mt-1 mb-1">
+            <span className="block text-3xl md:text-4xl text-white/70 font-light mt-1 mb-3">
               em
             </span>
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-300 to-indigo-300">
-              &lt;Automação Industrial/&gt;
-            </span>
+            <div className="relative inline-block">
+              <span className="relative z-10 text-transparent bg-clip-text bg-gradient-to-r from-blue-300 to-indigo-300">
+                &lt;Automação Industrial/&gt;
+              </span>
+              <div className="absolute -bottom-2 left-0 w-full h-1 bg-gradient-to-r from-blue-500/50 to-transparent rounded-full"></div>
+            </div>
           </motion.h1>
           
           <motion.p 
-            className="text-lg md:text-xl text-blue-100 mb-8 max-w-lg"
+            className="text-lg md:text-xl text-white/90 mb-10 max-w-lg leading-relaxed"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.5, duration: 0.8 }}
           >
-            Há mais de <span className="relative">
-              <span className="text-3xl font-bold text-sky-400 inline-block origin-center" ref={yearCountRef}>30</span>
-              <div className="absolute -bottom-1 left-0 h-1 bg-gradient-to-r from-sky-400 to-transparent" ref={yearHighlightRef}></div>
-            </span> anos entregando excelência em automação industrial, com soluções customizadas que aumentam produtividade, reduzem custos e garantem qualidade.
+            Há mais de <span className="relative inline-flex items-baseline">
+              <span className="text-3xl font-bold text-blue-300 inline-block" ref={yearCountRef}>30</span>
+              <div className="absolute -bottom-1 left-0 right-0 h-1 bg-gradient-to-r from-blue-400 via-blue-300 to-transparent rounded-full" ref={yearHighlightRef}></div>
+            </span> anos entregando excelência em automação industrial, com soluções customizadas que aumentam produtividade e garantem qualidade.
           </motion.p>
           
           <motion.div 
-            className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4"
+            className="flex flex-col sm:flex-row gap-5"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.7, duration: 0.6 }}
@@ -177,49 +205,51 @@ const HeroSection = () => {
               variant="primary" 
               size="lg"
               to="/solucoes"
-              className="bg-blue-600 hover:bg-blue-500 focus:ring-blue-500 shadow-md transition-all duration-300 flex items-center"
+              className="shadow-lg transition-all duration-300 group"
             >
-              <ArrowRight size={18} className="mr-2" />
               Conheça nossas soluções
+              <ArrowRight size={18} className="ml-2 group-hover:translate-x-1 transition-transform" />
             </Button>
             <Button
               variant="outline"
               size="lg"
               to="/contato"
-              className="border-2 border-white text-white hover:bg-white/10 shadow-md transition-all duration-300 flex items-center"
+              className="border-2 border-white text-white hover:bg-white/10 shadow-lg transition-all duration-300 group"
             >
-              <MessageCircle size={18} className="mr-2" />
               Fale com um especialista
+              <MessageCircle size={18} className="ml-2 group-hover:scale-110 transition-transform" />
             </Button>
           </motion.div>
-        </div>
+        </motion.div>
       </div>
       
-      {/* Seta de scroll para baixo - Com animação suave e contínua */}
-      <motion.div 
-        className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-20 cursor-pointer"
-        initial={{ y: 0 }}
-        animate={{ y: [0, 10, 0] }}
-        transition={{ 
-          duration: 2,
-          repeat: Infinity,
-          repeatType: "loop",
-          ease: "easeInOut"
-        }}
-        onClick={scrollToNextSection}
-        whileHover={{ scale: 1.1 }}
-      >
-        <div className="w-12 h-12 rounded-full bg-blue-500 flex items-center justify-center shadow-lg">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 5V19" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            <path d="M6 13L12 19L18 13" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-        </div>
-      </motion.div>
-      
-      {/* Sutis reflexos de luz no fundo */}
-      <div className="absolute top-1/4 right-1/4 w-64 h-64 bg-blue-400/5 rounded-full blur-3xl"></div>
-      <div className="absolute bottom-1/3 left-1/4 w-48 h-48 bg-indigo-400/5 rounded-full blur-3xl"></div>
+      {/* Modern scroll indicator */}
+      <div className="absolute bottom-8 left-0 right-0 flex justify-center z-20">
+        <motion.button 
+          onClick={scrollToNextSection}
+          className="flex flex-col items-center cursor-pointer group"
+          whileHover={{ y: -5 }}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1, duration: 0.5 }}
+        >
+          <span className="text-white/70 text-sm font-medium mb-2 group-hover:text-white transition-colors">
+            Saiba mais
+          </span>
+          <motion.div 
+            className="w-12 h-12 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center shadow-lg"
+            animate={{ y: [0, 5, 0] }}
+            transition={{ 
+              duration: 2,
+              repeat: Infinity,
+              repeatType: "loop",
+              ease: "easeInOut"
+            }}
+          >
+            <ChevronDown className="text-white" size={20} />
+          </motion.div>
+        </motion.button>
+      </div>
     </section>
   );
 };

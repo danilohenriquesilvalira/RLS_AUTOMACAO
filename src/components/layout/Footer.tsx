@@ -35,22 +35,22 @@ const Footer = () => {
   // Dados de Contato
   const contactInfo = [
     { 
-      icon: <MapPin size={18} className="text-blue-500" />, 
+      icon: <MapPin size={18} className="text-primary-500" />, 
       text: 'Estrada Nacional 247, Km 64.5, Parque Charal, Armazém 12 2705-837 Terrugem, Sintra, Lisboa, Portugal',
       href: 'https://maps.google.com/?q=Estrada+Nacional+247+Km+64.5+Parque+Charal+Armazém+12+2705-837+Terrugem+Sintra+Lisboa+Portugal'
     },
     { 
-      icon: <Phone size={18} className="text-blue-500" />, 
+      icon: <Phone size={18} className="text-primary-500" />, 
       text: '+351 935 479 757',
       href: 'tel:+351935479757'
     },
     { 
-      icon: <Mail size={18} className="text-blue-500" />, 
+      icon: <Mail size={18} className="text-primary-500" />, 
       text: 'danilosilvalira@hotmail.com',
       href: 'mailto:danilosilvalira@hotmail.com'
     },
     { 
-      icon: <Clock size={18} className="text-blue-500" />, 
+      icon: <Clock size={18} className="text-primary-500" />, 
       text: 'Segunda a Sexta: 9h às 18h',
       href: '#'
     }
@@ -65,21 +65,21 @@ const Footer = () => {
   ];
 
   return (
-    <footer className="bg-gray-900 text-gray-300">
+    <footer className="bg-[#343b91] text-white">
       {/* Footer Top - CTA melhorado */}
-      <div className="border-b border-gray-800">
+      <div className="border-b border-white/10">
         <div className="container mx-auto px-4 py-10">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-center">
             <div>
-              <h3 className="text-2xl font-bold text-blue-400 mb-3">Transforme sua indústria agora</h3>
-              <p className="text-gray-400">
+              <h3 className="text-2xl font-bold text-white mb-3">Transforme sua indústria agora</h3>
+              <p className="text-white/80">
                 Entre em contato para uma avaliação personalizada das suas necessidades industriais.
               </p>
             </div>
             <div className="flex flex-col md:flex-row gap-4">
               <a 
                 href="tel:+351935479757" 
-                className="px-6 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-500 transition-colors flex items-center justify-center"
+                className="px-6 py-3 bg-white text-[#343b91] rounded-lg font-medium hover:bg-white/90 transition-colors flex items-center justify-center"
               >
                 <Phone size={18} className="mr-2" />
                 Ligar Agora
@@ -105,13 +105,13 @@ const Footer = () => {
           <div className="lg:col-span-2">
             <Link to="/" className="flex items-center space-x-2 mb-6">
               <img 
-                src="/images/Logo_RLS.svg" 
+                src="/images/LOGO_PRETO.png" 
                 alt="RLS Automação Industrial" 
                 className="h-12 w-auto"
               />
             </Link>
             
-            <p className="text-gray-400 mb-6">
+            <p className="text-white/80 mb-6">
               Com mais de 30 anos de experiência, oferecemos soluções completas em automação industrial para aumentar a eficiência, reduzir custos e melhorar a qualidade dos seus processos.
             </p>
 
@@ -120,7 +120,7 @@ const Footer = () => {
                 <a 
                   key={index} 
                   href={item.href} 
-                  className="flex items-start text-gray-400 hover:text-gray-300 transition-colors"
+                  className="flex items-start text-white/80 hover:text-white transition-colors"
                   target={item.href.startsWith('http') ? "_blank" : undefined}
                   rel={item.href.startsWith('http') ? "noopener noreferrer" : undefined}
                 >
@@ -133,13 +133,13 @@ const Footer = () => {
 
           {/* Links */}
           <div>
-            <h3 className="text-lg font-semibold text-blue-400 mb-4">Soluções</h3>
+            <h3 className="text-lg font-semibold text-white mb-4">Soluções</h3>
             <ul className="space-y-2">
               {footerLinks.soluções.map((link) => (
                 <li key={link.title}>
                   <Link 
                     to={link.path} 
-                    className="text-gray-400 hover:text-blue-400 transition-colors"
+                    className="text-white/80 hover:text-primary-300 transition-colors"
                   >
                     {link.title}
                   </Link>
@@ -149,13 +149,13 @@ const Footer = () => {
           </div>
 
           <div>
-            <h3 className="text-lg font-semibold text-blue-400 mb-4">Indústrias</h3>
+            <h3 className="text-lg font-semibold text-white mb-4">Indústrias</h3>
             <ul className="space-y-2">
               {footerLinks.indústrias.map((link) => (
                 <li key={link.title}>
                   <Link 
                     to={link.path} 
-                    className="text-gray-400 hover:text-blue-400 transition-colors"
+                    className="text-white/80 hover:text-primary-300 transition-colors"
                   >
                     {link.title}
                   </Link>
@@ -165,13 +165,13 @@ const Footer = () => {
           </div>
 
           <div>
-            <h3 className="text-lg font-semibold text-blue-400 mb-4">Empresa</h3>
+            <h3 className="text-lg font-semibold text-white mb-4">Empresa</h3>
             <ul className="space-y-2">
               {footerLinks.empresa.map((link) => (
                 <li key={link.title}>
                   <Link 
                     to={link.path} 
-                    className="text-gray-400 hover:text-blue-400 transition-colors"
+                    className="text-white/80 hover:text-primary-300 transition-colors"
                   >
                     {link.title}
                   </Link>
@@ -183,10 +183,10 @@ const Footer = () => {
       </div>
 
       {/* Footer Bottom */}
-      <div className="border-t border-gray-800 py-6">
+      <div className="border-t border-white/10 py-6">
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row justify-between items-center">
-            <div className="text-gray-500 text-sm mb-4 md:mb-0">
+            <div className="text-white/60 text-sm mb-4 md:mb-0">
               &copy; {currentYear} RLS Automação Industrial. Todos os direitos reservados.
             </div>
 
@@ -197,7 +197,7 @@ const Footer = () => {
                   href={social.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-9 h-9 rounded-full bg-gray-800 flex items-center justify-center text-gray-400 hover:bg-blue-600 hover:text-white transition-colors"
+                  className="w-9 h-9 rounded-full bg-white/10 flex items-center justify-center text-white/80 hover:bg-primary-600 hover:text-white transition-colors"
                   aria-label={social.name}
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}

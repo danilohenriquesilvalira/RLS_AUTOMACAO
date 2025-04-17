@@ -22,17 +22,24 @@ const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isSolutionsOpen, setIsSolutionsOpen] = useState(false);
   const [isIndustriesOpen, setIsIndustriesOpen] = useState(false);
+  const [scrollProgress, setScrollProgress] = useState(0);
   const location = useLocation();
   const headerRef = useRef<HTMLElement>(null);
   
   // Controla o estado do header baseado no scroll
   useEffect(() => {
     const handleScroll = () => {
+      // Detecta se rolou mais de 50px para ativar o fundo
       if (window.scrollY > 50) {
         setIsScrolled(true);
       } else {
         setIsScrolled(false);
       }
+      
+      // Calcula o progresso do scroll para o logo dinâmico
+      // Limite em 200px para o efeito completo
+      const progress = Math.min(window.scrollY / 200, 1);
+      setScrollProgress(progress);
     };
 
     window.addEventListener('scroll', handleScroll);
@@ -45,6 +52,11 @@ const Header = () => {
     setIsSolutionsOpen(false);
     setIsIndustriesOpen(false);
   }, [location]);
+
+  // Calcula o tamanho do logo baseado no scroll
+  // Valores podem ser ajustados conforme necessário
+  const logoHeight = 100 - (scrollProgress * 20); // Começa em 100px e diminui até 80px
+  const logoWidth = 240 - (scrollProgress * 60);  // Começa em 240px e diminui até 180px
 
   // Variantes de animação
   const mobileMenuVariants = {
@@ -139,13 +151,13 @@ const Header = () => {
       ref={headerRef}
       className={`fixed w-full z-50 transition-all duration-300 ${
         isScrolled 
-          ? 'py-2 bg-white/95 backdrop-blur-sm shadow-lg' 
-          : 'py-3 bg-white shadow-md'
+          ? 'py-2 bg-white shadow-lg' // Mudança para fundo branco ao rolar
+          : 'py-4 bg-transparent'
       }`}
     >
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between">
-          {/* Logo com efeito de hover melhorado */}
+          {/* Logo com tamanho dinâmico baseado no scroll e imagem alternando conforme o scroll */}
           <Link to="/">
             <motion.div 
               className="flex items-center"
@@ -154,14 +166,18 @@ const Header = () => {
               transition={{ type: "spring", stiffness: 400, damping: 10 }}
             >
               <img 
-                src={`${import.meta.env.BASE_URL}images/Logo_RLS.svg`} 
+                src={`${import.meta.env.BASE_URL}images/${isScrolled ? 'LOGO_PRETO.png' : 'LOGO_BRANCO.png'}`} 
                 alt="RLS Automação Industrial" 
-                className="h-14 w-auto"
+                style={{ 
+                  height: `${logoHeight}px`, 
+                  width: `${logoWidth}px`,
+                  transition: 'height 0.3s, width 0.3s' // Suaviza a transição
+                }}
               />
             </motion.div>
           </Link>
 
-          {/* Desktop Navigation com melhor espaçamento e interações */}
+          {/* Desktop Navigation com cores ajustadas para funcionarem tanto com fundo transparente quanto branco */}
           <nav className="hidden lg:flex items-center space-x-1">
             {navItems.map((item) => (
               <motion.div 
@@ -173,8 +189,14 @@ const Header = () => {
                 {item.hasDropdown ? (
                   <>
                     <button
-                      className={`px-3 py-2 text-gray-700 hover:text-primary-600 font-medium flex items-center transition-colors relative ${
-                        location.pathname.includes(item.path) ? 'text-primary-600 font-semibold' : ''
+                      className={`px-3 py-2 font-medium flex items-center transition-colors relative ${
+                        isScrolled
+                          ? location.pathname.includes(item.path) 
+                            ? 'text-blue-600 font-semibold' 
+                            : 'text-gray-800 hover:text-blue-600'
+                          : location.pathname.includes(item.path) 
+                            ? 'text-blue-300 font-semibold' 
+                            : 'text-white hover:text-blue-300'
                       }`}
                       onClick={() => handleToggleDropdown(item, !item.isOpen)}
                       onMouseEnter={() => handleToggleDropdown(item, true)}
@@ -192,7 +214,9 @@ const Header = () => {
                       {/* Indicador de ativo - linha sob o link */}
                       {location.pathname.includes(item.path) && (
                         <motion.div 
-                          className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary-600 rounded-full"
+                          className={`absolute bottom-0 left-0 right-0 h-0.5 rounded-full ${
+                            isScrolled ? 'bg-blue-600' : 'bg-blue-400'
+                          }`}
                           layoutId={`desktopIndicator-${item.title}`}
                           initial={{ width: 0 }}
                           animate={{ width: '100%' }}
@@ -203,7 +227,9 @@ const Header = () => {
                       {/* Hover indicator - mais fino e elegante */}
                       {!location.pathname.includes(item.path) && (
                         <motion.div 
-                          className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary-400 rounded-full origin-left"
+                          className={`absolute bottom-0 left-0 right-0 h-0.5 rounded-full origin-left ${
+                            isScrolled ? 'bg-blue-600' : 'bg-blue-300'
+                          }`}
                           initial={{ scaleX: 0 }}
                           whileHover={{ scaleX: 1 }}
                           transition={{ duration: 0.2 }}
@@ -217,7 +243,11 @@ const Header = () => {
                           animate="open"
                           exit="closed"
                           variants={dropdownVariants}
-                          className="absolute left-0 mt-1 w-64 bg-white/95 backdrop-blur-sm shadow-xl rounded-lg py-2 z-20 border border-gray-100"
+                          className={`absolute left-0 mt-1 w-64 shadow-xl rounded-lg py-2 z-20 ${
+                            isScrolled
+                              ? 'bg-white border border-gray-200'
+                              : 'bg-[#1a2451]/90 backdrop-blur-md border border-[#2a3a7a]'
+                          }`}
                           onMouseEnter={() => handleToggleDropdown(item, true)}
                           onMouseLeave={() => handleToggleDropdown(item, false)}
                         >
@@ -231,8 +261,14 @@ const Header = () => {
                             >
                               <Link
                                 to={dropdownItem.path}
-                                className={`group flex items-center justify-between px-4 py-2 text-gray-700 hover:bg-primary-50 hover:text-primary-600 transition-colors ${
-                                  location.pathname === dropdownItem.path ? 'text-primary-600 bg-primary-50/70 font-medium' : ''
+                                className={`group flex items-center justify-between px-4 py-2 transition-colors ${
+                                  isScrolled
+                                    ? location.pathname === dropdownItem.path
+                                      ? 'text-blue-600 bg-blue-50 font-medium'
+                                      : 'text-gray-800 hover:bg-gray-100 hover:text-blue-600'
+                                    : location.pathname === dropdownItem.path
+                                      ? 'text-blue-300 bg-blue-900/40 font-medium'
+                                      : 'text-gray-300 hover:bg-blue-900/30 hover:text-blue-300'
                                 }`}
                               >
                                 <span>{dropdownItem.title}</span>
@@ -242,7 +278,7 @@ const Header = () => {
                                   initial={{ opacity: 0, x: -5 }}
                                   whileHover={{ opacity: 1, x: 0 }}
                                   transition={{ duration: 0.2 }}
-                                  className="text-primary-500"
+                                  className={isScrolled ? 'text-blue-600' : 'text-blue-400'}
                                 >
                                   <ExternalLink size={12} />
                                 </motion.span>
@@ -250,7 +286,9 @@ const Header = () => {
                                 {/* Indicador de item ativo no dropdown */}
                                 {location.pathname === dropdownItem.path && (
                                   <motion.div 
-                                    className="w-1 h-full absolute left-0 top-0 bg-primary-600 rounded-r-full"
+                                    className={`w-1 h-full absolute left-0 top-0 rounded-r-full ${
+                                      isScrolled ? 'bg-blue-600' : 'bg-blue-400'
+                                    }`}
                                     layoutId={`dropdownIndicator-${item.title}-${dropdownItem.title}`}
                                   />
                                 )}
@@ -264,8 +302,14 @@ const Header = () => {
                 ) : (
                   <Link
                     to={item.path}
-                    className={`px-3 py-2 text-gray-700 hover:text-primary-600 font-medium transition-colors relative ${
-                      location.pathname === item.path ? 'text-primary-600 font-semibold' : ''
+                    className={`px-3 py-2 font-medium transition-colors relative ${
+                      isScrolled
+                        ? location.pathname === item.path 
+                          ? 'text-blue-600 font-semibold' 
+                          : 'text-gray-800 hover:text-blue-600'
+                        : location.pathname === item.path 
+                          ? 'text-blue-300 font-semibold' 
+                          : 'text-white hover:text-blue-300'
                     }`}
                   >
                     {item.title}
@@ -273,7 +317,9 @@ const Header = () => {
                     {/* Indicador de ativo - linha azul embaixo */}
                     {location.pathname === item.path && (
                       <motion.div 
-                        className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary-600 rounded-full"
+                        className={`absolute bottom-0 left-0 right-0 h-0.5 rounded-full ${
+                          isScrolled ? 'bg-blue-600' : 'bg-blue-400'
+                        }`}
                         layoutId={`desktopIndicator-${item.title}`}
                         initial={{ width: 0 }}
                         animate={{ width: '100%' }}
@@ -284,7 +330,9 @@ const Header = () => {
                     {/* Hover indicator */}
                     {location.pathname !== item.path && (
                       <motion.div 
-                        className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary-400 rounded-full origin-left"
+                        className={`absolute bottom-0 left-0 right-0 h-0.5 rounded-full origin-left ${
+                          isScrolled ? 'bg-blue-600' : 'bg-blue-300'
+                        }`}
                         initial={{ scaleX: 0 }}
                         whileHover={{ scaleX: 1 }}
                         transition={{ duration: 0.2 }}
@@ -296,9 +344,8 @@ const Header = () => {
             ))}
           </nav>
 
-          {/* Desktop CTA - Simplificado (removido o "Fale Conosco") */}
+          {/* Desktop CTA - Ajustado para o tema branco/transparente */}
           <div className="hidden lg:flex items-center">
-            {/* Botão "Solicitar Orçamento" */}
             <motion.div
               whileHover={{ 
                 scale: 1.05, 
@@ -311,7 +358,7 @@ const Header = () => {
                 variant="primary" 
                 size="lg" 
                 to="/contato"
-                className="font-medium px-5 py-2.5 rounded-lg relative overflow-hidden flex items-center gap-2 shadow-lg shadow-primary-600/20"
+                className="font-medium px-5 py-2.5 rounded-lg relative overflow-hidden flex items-center gap-2 shadow-lg shadow-blue-600/20"
               >
                 <MessageCircle size={18} className="mr-1" />
                 Solicitar Orçamento
@@ -327,11 +374,13 @@ const Header = () => {
             </motion.div>
           </div>
 
-          {/* Mobile Menu Button */}
+          {/* Mobile Menu Button com cor ajustada para tema branco/transparente */}
           <motion.button
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
-            className="lg:hidden text-gray-700 p-2 focus:outline-none"
+            className={`lg:hidden p-2 focus:outline-none ${
+              isScrolled ? 'text-gray-800' : 'text-white'
+            }`}
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             aria-label={isMenuOpen ? "Fechar menu" : "Abrir menu"}
           >
@@ -362,7 +411,7 @@ const Header = () => {
         </div>
       </div>
 
-      {/* Mobile Navigation - Improved */}
+      {/* Mobile Navigation - Adaptado para tema branco/transparente */}
       <AnimatePresence>
         {isMenuOpen && (
           <motion.div
@@ -370,13 +419,19 @@ const Header = () => {
             animate="open"
             exit="closed"
             variants={mobileMenuVariants}
-            className="lg:hidden bg-white/95 backdrop-blur-sm shadow-lg overflow-hidden"
+            className={`lg:hidden shadow-lg overflow-hidden ${
+              isScrolled
+                ? 'bg-white'
+                : 'bg-[#1a2451]/90 backdrop-blur-md'
+            }`}
           >
             <nav className="container mx-auto px-4 py-4 flex flex-col">
               {navItems.map((item, idx) => (
                 <motion.div 
                   key={item.title} 
-                  className="border-b border-gray-100 py-2"
+                  className={`border-b py-2 ${
+                    isScrolled ? 'border-gray-200' : 'border-[#2a3a7a]'
+                  }`}
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: idx * 0.05, duration: 0.3 }}
@@ -385,13 +440,24 @@ const Header = () => {
                   {item.hasDropdown ? (
                     <>
                       <button
-                        className={`flex justify-between items-center w-full py-2 text-gray-700 font-medium ${
-                          location.pathname.includes(item.path) ? 'text-primary-600 font-semibold' : ''
+                        className={`flex justify-between items-center w-full py-2 font-medium ${
+                          isScrolled
+                            ? location.pathname.includes(item.path) 
+                              ? 'text-blue-600 font-semibold' 
+                              : 'text-gray-800'
+                            : location.pathname.includes(item.path) 
+                              ? 'text-blue-300 font-semibold' 
+                              : 'text-white'
                         }`}
                         onClick={() => handleToggleDropdown(item, !item.isOpen)}
                       >
-                        {/* Item ativo usa uma borda esquerda ao invés de um elemento absolute */}
-                        <span className={`pl-2 ${location.pathname.includes(item.path) ? 'border-l-2 border-primary-600' : ''}`}>
+                        <span className={`pl-2 ${
+                          location.pathname.includes(item.path) 
+                            ? isScrolled 
+                              ? 'border-l-2 border-blue-600' 
+                              : 'border-l-2 border-blue-400'
+                            : ''
+                        }`}>
                           {item.title}
                         </span>
                         <motion.div
@@ -422,9 +488,13 @@ const Header = () => {
                                 <Link
                                   to={dropdownItem.path}
                                   className={`flex justify-between items-center py-2 pl-2 border-l-2 ${
-                                    location.pathname === dropdownItem.path 
-                                    ? 'border-primary-600 text-primary-600 font-medium' 
-                                    : 'border-gray-200 text-gray-600 hover:text-primary-600 hover:border-primary-600'
+                                    isScrolled
+                                      ? location.pathname === dropdownItem.path
+                                        ? 'border-blue-600 text-blue-600 font-medium'
+                                        : 'border-gray-200 text-gray-600 hover:text-blue-600 hover:border-blue-600'
+                                      : location.pathname === dropdownItem.path
+                                        ? 'border-blue-400 text-blue-300 font-medium'
+                                        : 'border-[#374291] text-gray-400 hover:text-blue-300 hover:border-blue-300'
                                   } transition-colors`}
                                 >
                                   <span>{dropdownItem.title}</span>
@@ -434,7 +504,9 @@ const Header = () => {
                                     <motion.span 
                                       initial={{ opacity: 0 }}
                                       animate={{ opacity: 1 }}
-                                      className="text-primary-500 pr-2"
+                                      className={`pr-2 ${
+                                        isScrolled ? 'text-blue-600' : 'text-blue-400'
+                                      }`}
                                     >
                                       <ExternalLink size={12} />
                                     </motion.span>
@@ -449,8 +521,14 @@ const Header = () => {
                   ) : (
                     <Link
                       to={item.path}
-                      className={`block py-2 text-gray-700 font-medium ${
-                        location.pathname === item.path ? 'text-primary-600 font-semibold border-l-2 border-primary-600 pl-2' : ''
+                      className={`block py-2 font-medium ${
+                        isScrolled
+                          ? location.pathname === item.path
+                            ? 'text-blue-600 font-semibold border-l-2 border-blue-600 pl-2'
+                            : 'text-gray-800'
+                          : location.pathname === item.path
+                            ? 'text-blue-300 font-semibold border-l-2 border-blue-400 pl-2'
+                            : 'text-white'
                       }`}
                     >
                       {item.title}
@@ -459,7 +537,7 @@ const Header = () => {
                 </motion.div>
               ))}
 
-              {/* Elementos de contato no mobile - Simplificado */}
+              {/* Elementos de contato no mobile - Ajustados para tema branco/transparente */}
               <motion.div 
                 className="mt-6 space-y-4"
                 initial={{ opacity: 0, y: 20 }}
@@ -477,7 +555,7 @@ const Header = () => {
                     size="lg" 
                     to="/contato" 
                     fullWidth
-                    className="py-3 font-medium rounded-lg shadow-lg shadow-primary-600/20 flex items-center justify-center gap-2 relative overflow-hidden"
+                    className="py-3 font-medium rounded-lg shadow-lg shadow-blue-600/20 flex items-center justify-center gap-2 relative overflow-hidden"
                   >
                     <Calendar className="w-5 h-5" />
                     <span>Agendar Orçamento</span>
@@ -494,7 +572,11 @@ const Header = () => {
                     size="md" 
                     to="/contato" 
                     fullWidth
-                    className="py-3 font-medium rounded-lg border border-gray-200 hover:border-primary-300 flex items-center justify-center gap-2 text-gray-600 hover:text-primary-600 transition-colors"
+                    className={`py-3 font-medium rounded-lg flex items-center justify-center gap-2 transition-colors ${
+                      isScrolled
+                        ? 'border border-gray-300 text-gray-700 hover:text-blue-600 hover:border-blue-600'
+                        : 'border border-[#374291] text-gray-300 hover:text-blue-300 hover:border-blue-700'
+                    }`}
                   >
                     <MessageSquare className="w-5 h-5" />
                     <span>Enviar Mensagem</span>
