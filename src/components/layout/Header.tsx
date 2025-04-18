@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, ChevronDown, MessageCircle, ExternalLink, Calendar, MessageSquare } from 'lucide-react';
+import { Menu, X, ChevronDown, ExternalLink, Calendar, MessageSquare } from 'lucide-react';
 import Button from '@/components/ui/Button';
 
 // Define um tipo específico para os itens de navegação
@@ -54,9 +54,9 @@ const Header = () => {
   }, [location]);
 
   // Calcula o tamanho do logo baseado no scroll
-  // Valores podem ser ajustados conforme necessário
+  // Valores ajustados para deixar o logo mais compacto
   const logoHeight = 100 - (scrollProgress * 20); // Começa em 100px e diminui até 80px
-  const logoWidth = 240 - (scrollProgress * 60);  // Começa em 240px e diminui até 180px
+  const logoWidth = 180 - (scrollProgress * 40);  // Começa em 180px e diminui até 140px
 
   // Variantes de animação
   const mobileMenuVariants = {
@@ -151,12 +151,12 @@ const Header = () => {
       ref={headerRef}
       className={`fixed w-full z-50 transition-all duration-300 ${
         isScrolled 
-          ? 'py-2 bg-white shadow-lg' // Mudança para fundo branco ao rolar
-          : 'py-4 bg-transparent'
+          ? 'py-1 bg-white shadow-lg' // Reduzindo o padding vertical quando rolado
+          : 'py-2 bg-transparent'     // Reduzindo o padding vertical inicial
       }`}
     >
       <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between h-16">
           {/* Logo com tamanho dinâmico baseado no scroll e imagem alternando conforme o scroll */}
           <Link to="/">
             <motion.div 
@@ -171,25 +171,26 @@ const Header = () => {
                 style={{ 
                   height: `${logoHeight}px`, 
                   width: `${logoWidth}px`,
-                  transition: 'height 0.3s, width 0.3s' // Suaviza a transição
+                  transition: 'height 0.3s, width 0.3s',
+                  objectFit: 'contain' // Garante que o logo mantenha proporções
                 }}
               />
             </motion.div>
           </Link>
 
-          {/* Desktop Navigation com cores ajustadas para funcionarem tanto com fundo transparente quanto branco */}
-          <nav className="hidden lg:flex items-center space-x-1">
+          {/* Desktop Navigation posicionada mais à direita */}
+          <nav className="hidden lg:flex items-center justify-end flex-1 h-full">
             {navItems.map((item) => (
               <motion.div 
                 key={item.title} 
-                className="relative group px-1"
+                className="relative group px-1 flex items-center h-full"
                 whileHover={{ scale: 1.03 }}
                 transition={{ type: "spring", stiffness: 500, damping: 25 }}
               >
                 {item.hasDropdown ? (
                   <>
                     <button
-                      className={`px-3 py-2 font-medium flex items-center transition-colors relative ${
+                      className={`px-3 py-1 font-medium flex items-center transition-colors relative ${
                         isScrolled
                           ? location.pathname.includes(item.path) 
                             ? 'text-blue-600 font-semibold' 
@@ -302,7 +303,7 @@ const Header = () => {
                 ) : (
                   <Link
                     to={item.path}
-                    className={`px-3 py-2 font-medium transition-colors relative ${
+                    className={`px-3 py-1 font-medium transition-colors relative ${
                       isScrolled
                         ? location.pathname === item.path 
                           ? 'text-blue-600 font-semibold' 
@@ -343,36 +344,6 @@ const Header = () => {
               </motion.div>
             ))}
           </nav>
-
-          {/* Desktop CTA - Ajustado para o tema branco/transparente */}
-          <div className="hidden lg:flex items-center">
-            <motion.div
-              whileHover={{ 
-                scale: 1.05, 
-                boxShadow: "0 8px 20px rgba(59, 130, 246, 0.3)"
-              }}
-              whileTap={{ scale: 0.97 }}
-              className="overflow-hidden rounded-lg"
-            >
-              <Button 
-                variant="primary" 
-                size="lg" 
-                to="/contato"
-                className="font-medium px-5 py-2.5 rounded-lg relative overflow-hidden flex items-center gap-2 shadow-lg shadow-blue-600/20"
-              >
-                <MessageCircle size={18} className="mr-1" />
-                Solicitar Orçamento
-                
-                {/* Efeito de onda ao hover */}
-                <motion.div
-                  className="absolute -inset-1 bg-white/20 rounded-full"
-                  initial={{ scale: 0, x: "100%", y: "100%" }}
-                  whileHover={{ scale: 2, x: 0, y: 0 }}
-                  transition={{ duration: 0.6 }}
-                />
-              </Button>
-            </motion.div>
-          </div>
 
           {/* Mobile Menu Button com cor ajustada para tema branco/transparente */}
           <motion.button
