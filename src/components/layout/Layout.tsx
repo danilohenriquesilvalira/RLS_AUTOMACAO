@@ -2,7 +2,7 @@ import { ReactNode } from 'react';
 import { motion } from 'framer-motion';
 import Header from './Header';
 import Footer from './Footer';
-import FloatingSocial from '@/components/ui/FloatingSocial';
+
 
 interface LayoutProps {
   children: ReactNode;
@@ -59,12 +59,7 @@ const Layout = ({
       {withFooter && <Footer />}
       
       {/* Botões flutuantes de redes sociais */}
-      <FloatingSocial 
-        whatsappNumber="+351935479757"
-        linkedinUrl="https://www.linkedin.com/company/rls-automacao-industrial"
-        email="danilosilvalira@hotmail.com"
-        phone="+351935479757"
-      />
+      
     </>
   );
 };

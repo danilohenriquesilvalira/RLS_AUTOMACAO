@@ -37,39 +37,56 @@ const IndustriaDetalhe = () => {
 
   return (
     <Layout pageTitle={industry.title}>
-      {/* Hero Banner */}
-      <section className="pt-32 pb-16 md:pt-40 md:pb-20 bg-gradient-to-r from-blue-900 to-indigo-800 text-white">
-        <div className="container mx-auto px-4">
-          <div className="mb-4">
-            <Link to="/industrias" className="inline-flex items-center text-blue-100 hover:text-white transition-colors">
-              <ArrowLeft size={18} className="mr-2" /> Voltar para indústrias
-            </Link>
-          </div>
-          <div className="max-w-3xl">
-            <motion.div 
-              className="flex items-center mb-6"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-            >
-              <div className={`w-14 h-14 rounded-full ${industry.color} text-white flex items-center justify-center mr-4`}>
-                <Icon size={28} />
-              </div>
-              <h1 className="text-4xl md:text-5xl font-bold">
-                {industry.title}
-              </h1>
-            </motion.div>
-            <motion.p 
-              className="text-xl text-blue-100 mb-8"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.1 }}
-            >
-              {industry.description}
-            </motion.p>
+      {/* 
+        Hero Banner - Versão final com responsividade garantida em todos os dispositivos 
+      */}
+      <div className="relative bg-[#0047ab]"> {/* Cor de fallback caso o SVG não carregue */}
+        {/* Background SVG com responsividade aprimorada */}
+        <div 
+          className="absolute top-0 left-0 w-full h-full"
+          style={{
+            backgroundImage: "url('/images/industries/Imagem_topo.svg')",
+            backgroundSize: "cover",
+            backgroundPosition: "50% 50%", /* Centralização perfeita */
+            backgroundRepeat: "no-repeat",
+            zIndex: 0
+          }}
+        ></div>
+        
+        {/* Conteúdo com camada própria para garantir visibilidade */}
+        <div className="relative z-10 pt-28 pb-16 md:pt-36 md:pb-20 text-white min-h-[350px]">
+          <div className="container mx-auto px-4">
+            <div className="mb-4">
+              <Link to="/industrias" className="inline-flex items-center text-blue-100 hover:text-white transition-colors">
+                <ArrowLeft size={18} className="mr-2" /> Voltar para indústrias
+              </Link>
+            </div>
+            <div className="max-w-3xl">
+              <motion.div 
+                className="flex items-center mb-6"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+              >
+                <div className={`w-14 h-14 rounded-full ${industry.color} text-white flex items-center justify-center mr-4`}>
+                  <Icon size={28} />
+                </div>
+                <h1 className="text-4xl md:text-5xl font-bold">
+                  {industry.title}
+                </h1>
+              </motion.div>
+              <motion.p 
+                className="text-xl text-blue-100 mb-8"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.1 }}
+              >
+                {industry.description}
+              </motion.p>
+            </div>
           </div>
         </div>
-      </section>
+      </div>
 
       {/* Content Section */}
       <section className="py-16 bg-gray-50">
@@ -151,6 +168,7 @@ const IndustriaDetalhe = () => {
                   size="lg"
                   to="/contato"
                   icon={<ArrowRight size={18} />}
+                  className={industry.color}
                 >
                   Solicite uma consultoria
                 </Button>

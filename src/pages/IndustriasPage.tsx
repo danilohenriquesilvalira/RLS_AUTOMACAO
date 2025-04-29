@@ -18,43 +18,36 @@ const IndustriasPage = () => {
 
   return (
     <Layout pageTitle="Indústrias Atendidas">
-      {/* Hero Banner */}
-      <section className="pt-32 pb-16 md:pt-40 md:pb-20 bg-gradient-to-r from-blue-900 to-indigo-800 text-white">
-        <div className="container mx-auto px-4">
-          <div className="max-w-3xl">
-            <motion.h1 
-              className="text-4xl md:text-5xl font-bold mb-6"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-            >
-              Soluções para Diversos Setores Industriais
-            </motion.h1>
-            <motion.p 
-              className="text-xl text-blue-100 mb-8"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.1 }}
-            >
-              Desenvolvemos sistemas de automação específicos para atender os desafios únicos de cada setor industrial, otimizando processos e aumentando a produtividade.
-            </motion.p>
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-            >
-              <Button
-                variant="white"
-                size="lg"
-                to="/contato"
-                icon={<ArrowRight size={18} />}
+      {/* Hero Banner com SVG de fundo */}
+      <div className="relative bg-[#0047ab]">
+        {/* Background SVG com responsividade aprimorada */}
+        <div 
+          className="absolute top-0 left-0 w-full h-full"
+          style={{
+            backgroundImage: "url('/images/industries/Imagem_topo.svg')",
+            backgroundSize: "cover",
+            backgroundPosition: "50% 50%",
+            backgroundRepeat: "no-repeat",
+            zIndex: 0
+          }}
+        ></div>
+        
+        {/* Conteúdo com camada própria para garantir visibilidade */}
+        <div className="relative z-10 pt-28 pb-16 md:pt-36 md:pb-20 text-white min-h-[350px]">
+          <div className="container mx-auto px-4">
+            <div className="max-w-3xl">
+              <motion.h1 
+                className="text-4xl md:text-5xl font-bold mb-6"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
               >
-                Consulte um especialista
-              </Button>
-            </motion.div>
+                Soluções para Diversos Setores Industriais
+              </motion.h1>
+            </div>
           </div>
         </div>
-      </section>
+      </div>
 
       {/* Industries Grid */}
       <section className="py-20 bg-white">

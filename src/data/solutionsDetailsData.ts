@@ -31,7 +31,7 @@ const solutionsDetailsData: SolutionDetail[] = [
     icon: CircuitBoard,
     color: 'bg-indigo-500',
     shortDescription: 'Desenvolvimento de soluções personalizadas para sua indústria',
-    description: 'Desenvolvemos uma estrutura na qual os nossos consultores compreendem o estado atual do seu negócio, identificam as lacunas associadas aos seus objetivos e projetam não apenas soluções tecnológicas, mas todas as soluções possíveis que podem ajudar a fechar essas lacunas.',
+    description: '',
     image: `${import.meta.env.BASE_URL}images/solutions/Consultoria_Projetos.jpg`,
     services: [
       'Consultoria para automação de processos',
@@ -51,7 +51,7 @@ const solutionsDetailsData: SolutionDetail[] = [
     icon: Settings,
     color: 'bg-blue-500',
     shortDescription: 'Sistemas de controle avançados para otimização de processos',
-    description: 'A nossa experiência comprovada em soluções de automação industrial baseia-se nas normas e melhores práticas da indústria, incluindo cibersegurança.',
+    description: '',
     image: `${import.meta.env.BASE_URL}images/solutions/AutomacaoIndustrial.jpg`,
     services: [
       'Implantação de sistemas de controle (PLC)',
@@ -64,7 +64,7 @@ const solutionsDetailsData: SolutionDetail[] = [
     ],
     caseStudy: {
       title: 'Modernização de linha produtiva',
-      description: 'Implementação de sistema SCADA integrado que aumentou a visibilidade do processo e reduziu paradas em 42%.'
+      description: ''
     }
   },
   {
@@ -73,7 +73,7 @@ const solutionsDetailsData: SolutionDetail[] = [
     icon: BarChart2,
     color: 'bg-green-500',
     shortDescription: 'Soluções para melhorar a eficiência da sua operação industrial',
-    description: 'Nossa abordagem de gestão industrial combina tecnologia com métodos comprovados para otimizar suas operações, reduzir custos e aumentar a produtividade.',
+    description: '',
     image: `${import.meta.env.BASE_URL}images/solutions/Gestao_Industrial.jpg`,
     services: [
       'Implantação de sistemas MES (Manufacturing Execution System)',
@@ -93,7 +93,7 @@ const solutionsDetailsData: SolutionDetail[] = [
     icon: Wrench,
     color: 'bg-orange-500',
     shortDescription: 'Maximize a disponibilidade dos equipamentos e reduza custos',
-    description: 'Nossas soluções de gestão de manutenção ajudam a prever falhas antes que ocorram, estendendo a vida útil dos equipamentos e reduzindo paradas não programadas.',
+    description: '',
     image: `${import.meta.env.BASE_URL}images/solutions/GestaoIndustrial.jpg`,
     services: [
       'Manutenção preditiva baseada em dados',
@@ -113,7 +113,7 @@ const solutionsDetailsData: SolutionDetail[] = [
     icon: Shield,
     color: 'bg-red-500',
     shortDescription: 'Proteja seus sistemas de automação contra ameaças cibernéticas',
-    description: 'A segurança cibernética para tecnologia operacional (OT) é essencial para proteger sistemas críticos da indústria. Oferecemos soluções que garantem a integridade das suas operações.',
+    description: '',
     image: `${import.meta.env.BASE_URL}images/solutions/cyber-security.jpg`,
     services: [
       'Avaliação de vulnerabilidades em sistemas OT',
@@ -133,7 +133,7 @@ const solutionsDetailsData: SolutionDetail[] = [
     icon: BookOpen,
     color: 'bg-amber-500',
     shortDescription: 'Capacitação técnica para sua equipe em tecnologias industriais',
-    description: 'Acreditamos que o conhecimento é a base para a transformação digital. Nossos treinamentos são desenvolvidos para capacitar sua equipe com as habilidades necessárias para operar e manter sistemas de automação modernos.',
+    description: '',
     image: `${import.meta.env.BASE_URL}images/solutions/Treinamentos.jpg`,
     services: [
       'Treinamentos em sistemas SCADA e DCS',
@@ -153,7 +153,7 @@ const solutionsDetailsData: SolutionDetail[] = [
     icon: Headset,
     color: 'bg-purple-500',
     shortDescription: 'Suporte especializado para manter seus sistemas funcionando',
-    description: 'Nossa equipe de especialistas oferece suporte técnico contínuo para garantir que seus sistemas de automação funcionem sem interrupções, mantendo a produtividade da sua operação.',
+    description: '',
     image: `${import.meta.env.BASE_URL}images/solutions/AssistenciaTecnica.jpg`,
     services: [
       'Suporte técnico remoto e presencial',
