@@ -6,6 +6,15 @@ export default {
   ],
   theme: {
     extend: {
+      // Adicione essas linhas dentro do extend existente
+      screens: {
+        '3xl': '1920px',
+      },
+      maxWidth: {
+        '6xl': '1400px',
+        '7xl': '1600px',
+      },
+      // Mantenha tudo que já existe abaixo
       fontFamily: {
         sans: ['Inter var', 'Inter', 'sans-serif'],
         heading: ['Montserrat', 'sans-serif'],

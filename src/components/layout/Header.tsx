@@ -209,9 +209,9 @@ const Header = () => {
       }`}
     >
       <div className="container mx-auto px-4 md:px-6">
-        <div className="flex items-center justify-between h-16 md:h-20">
-          {/* Logo com tamanho dinâmico baseado no scroll e imagem alternando conforme o scroll */}
-          <Link to="/" className="z-10">
+        <div className="flex items-center h-16 md:h-20">
+          {/* Logo com tamanho dinâmico baseado no scroll */}
+          <Link to="/" className="flex-shrink-0 z-10 mr-3 md:mr-6">
             <motion.div 
               className="flex items-center"
               whileHover={{ scale: 1.03 }}
@@ -227,49 +227,146 @@ const Header = () => {
                   transition: 'height 0.3s, width 0.3s',
                   objectFit: 'contain' // Garante que o logo mantenha proporções
                 }}
-                className="max-w-[180px] sm:max-w-[220px] md:max-w-none" // Limites de tamanho para telas pequenas
+                className="max-w-[150px] sm:max-w-[180px] md:max-w-[220px]" // Limites de tamanho ajustados
               />
             </motion.div>
           </Link>
 
-          {/* Desktop Navigation posicionada mais à direita */}
-          <nav className="hidden lg:flex items-center justify-end flex-1 h-full">
-            {navItems.map((item) => (
-              <motion.div 
-                key={item.title} 
-                className="relative group px-1 flex items-center h-full"
-                whileHover={{ scale: 1.03 }}
-                transition={{ type: "spring", stiffness: 500, damping: 25 }}
-              >
-                {item.hasDropdown ? (
-                  <>
-                    <button
-                      className={`px-3 py-1 font-medium flex items-center transition-colors relative ${
+          {/* Desktop Navigation com melhor espaçamento */}
+          <nav className="hidden lg:flex items-center flex-1 justify-center">
+            <div className="flex items-center space-x-1 xl:space-x-3">
+              {navItems.map((item) => (
+                <motion.div 
+                  key={item.title} 
+                  className="relative group px-1"
+                  whileHover={{ scale: 1.03 }}
+                  transition={{ type: "spring", stiffness: 500, damping: 25 }}
+                >
+                  {item.hasDropdown ? (
+                    <>
+                      <button
+                        className={`px-2 md:px-3 py-1 font-medium flex items-center transition-colors relative ${
+                          isScrolled
+                            ? location.pathname.includes(item.path) 
+                              ? 'text-green-600 font-semibold' 
+                              : 'text-gray-800 hover:text-green-600'
+                            : location.pathname.includes(item.path) 
+                              ? 'text-green-300 font-semibold' 
+                              : 'text-white hover:text-green-300'
+                        }`}
+                        onClick={() => handleToggleDropdown(item, !item.isOpen)}
+                        onMouseEnter={() => handleToggleDropdown(item, true)}
+                        onMouseLeave={() => handleToggleDropdown(item, false)}
+                        aria-expanded={item.isOpen}
+                        aria-haspopup="true"
+                      >
+                        {item.title}
+                        <motion.div
+                          animate={{ rotate: item.isOpen ? 180 : 0 }}
+                          transition={{ duration: 0.3 }}
+                          className="ml-1"
+                        >
+                          <ChevronDown size={16} />
+                        </motion.div>
+                        
+                        {/* Indicador de ativo - linha sob o link */}
+                        {location.pathname.includes(item.path) && (
+                          <motion.div 
+                            className={`absolute bottom-0 left-0 right-0 h-0.5 rounded-full ${
+                              isScrolled ? 'bg-green-600' : 'bg-green-400'
+                            }`}
+                            layoutId={`desktopIndicator-${item.title}`}
+                            initial={{ width: 0 }}
+                            animate={{ width: '100%' }}
+                            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                          />
+                        )}
+                        
+                        {/* Hover indicator - mais fino e elegante */}
+                        {!location.pathname.includes(item.path) && (
+                          <motion.div 
+                            className={`absolute bottom-0 left-0 right-0 h-0.5 rounded-full origin-left ${
+                              isScrolled ? 'bg-green-600' : 'bg-green-300'
+                            }`}
+                            initial={{ scaleX: 0 }}
+                            whileHover={{ scaleX: 1 }}
+                            transition={{ duration: 0.2 }}
+                          />
+                        )}
+                      </button>
+                      <AnimatePresence>
+                        {item.isOpen && item.dropdownItems && (
+                          <motion.div
+                            initial="closed"
+                            animate="open"
+                            exit="closed"
+                            variants={dropdownVariants}
+                            className="absolute left-0 top-full w-56 bg-white shadow-lg rounded-md py-1 z-50 border border-gray-100"
+                            style={{ marginTop: "0px" }}
+                            onMouseEnter={() => handleToggleDropdown(item, true)}
+                            onMouseLeave={() => handleToggleDropdown(item, false)}
+                          >
+                            <div className="py-1">
+                              {item.dropdownItems.map((dropdownItem, idx) => (
+                                <motion.div
+                                  key={dropdownItem.title}
+                                  initial={{ opacity: 0, x: -5 }}
+                                  animate={{ opacity: 1, x: 0 }}
+                                  transition={{ delay: idx * 0.03, duration: 0.15 }}
+                                  className="mx-1"
+                                >
+                                  <Link
+                                    to={dropdownItem.path}
+                                    className={`group flex items-center justify-between px-3 py-1.5 text-sm rounded-md transition-colors ${
+                                      location.pathname === dropdownItem.path
+                                        ? 'text-green-600 bg-green-50 font-medium'
+                                        : 'text-gray-700 hover:bg-gray-50 hover:text-green-600'
+                                    }`}
+                                  >
+                                    <span>{dropdownItem.title}</span>
+                                    
+                                    {/* Ícone sutil que aparece apenas no hover */}
+                                    <motion.span 
+                                      initial={{ opacity: 0, x: -5 }}
+                                      whileHover={{ opacity: 1, x: 0 }}
+                                      transition={{ duration: 0.2 }}
+                                      className="text-green-600"
+                                    >
+                                      <ExternalLink size={12} />
+                                    </motion.span>
+                                    
+                                    {/* Indicador de item ativo no dropdown */}
+                                    {location.pathname === dropdownItem.path && (
+                                      <motion.div 
+                                        className="w-0.5 h-full absolute left-0 top-0 rounded-r-full bg-green-600"
+                                        layoutId={`dropdownIndicator-${item.title}-${dropdownItem.title}`}
+                                      />
+                                    )}
+                                  </Link>
+                                </motion.div>
+                              ))}
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </>
+                  ) : (
+                    <Link
+                      to={item.path}
+                      className={`px-2 md:px-3 py-1 font-medium transition-colors relative ${
                         isScrolled
-                          ? location.pathname.includes(item.path) 
+                          ? location.pathname === item.path 
                             ? 'text-green-600 font-semibold' 
                             : 'text-gray-800 hover:text-green-600'
-                          : location.pathname.includes(item.path) 
+                          : location.pathname === item.path 
                             ? 'text-green-300 font-semibold' 
                             : 'text-white hover:text-green-300'
                       }`}
-                      onClick={() => handleToggleDropdown(item, !item.isOpen)}
-                      onMouseEnter={() => handleToggleDropdown(item, true)}
-                      onMouseLeave={() => handleToggleDropdown(item, false)}
-                      aria-expanded={item.isOpen}
-                      aria-haspopup="true"
                     >
                       {item.title}
-                      <motion.div
-                        animate={{ rotate: item.isOpen ? 180 : 0 }}
-                        transition={{ duration: 0.3 }}
-                        className="ml-1"
-                      >
-                        <ChevronDown size={16} />
-                      </motion.div>
                       
-                      {/* Indicador de ativo - linha sob o link */}
-                      {location.pathname.includes(item.path) && (
+                      {/* Indicador de ativo - linha verde embaixo */}
+                      {location.pathname === item.path && (
                         <motion.div 
                           className={`absolute bottom-0 left-0 right-0 h-0.5 rounded-full ${
                             isScrolled ? 'bg-green-600' : 'bg-green-400'
@@ -281,8 +378,8 @@ const Header = () => {
                         />
                       )}
                       
-                      {/* Hover indicator - mais fino e elegante */}
-                      {!location.pathname.includes(item.path) && (
+                      {/* Hover indicator */}
+                      {location.pathname !== item.path && (
                         <motion.div 
                           className={`absolute bottom-0 left-0 right-0 h-0.5 rounded-full origin-left ${
                             isScrolled ? 'bg-green-600' : 'bg-green-300'
@@ -292,117 +389,38 @@ const Header = () => {
                           transition={{ duration: 0.2 }}
                         />
                       )}
-                    </button>
-                    <AnimatePresence>
-                      {item.isOpen && item.dropdownItems && (
-                        <motion.div
-                          initial="closed"
-                          animate="open"
-                          exit="closed"
-                          variants={dropdownVariants}
-                          className="absolute left-0 top-full w-56 bg-white shadow-lg rounded-md py-1 z-50 border border-gray-100"
-                          style={{ marginTop: "0px" }}
-                          onMouseEnter={() => handleToggleDropdown(item, true)}
-                          onMouseLeave={() => handleToggleDropdown(item, false)}
-                        >
-                          <div className="py-1">
-                            {item.dropdownItems.map((dropdownItem, idx) => (
-                              <motion.div
-                                key={dropdownItem.title}
-                                initial={{ opacity: 0, x: -5 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                transition={{ delay: idx * 0.03, duration: 0.15 }}
-                                className="mx-1"
-                              >
-                                <Link
-                                  to={dropdownItem.path}
-                                  className={`group flex items-center justify-between px-3 py-1.5 text-sm rounded-md transition-colors ${
-                                    location.pathname === dropdownItem.path
-                                      ? 'text-green-600 bg-green-50 font-medium'
-                                      : 'text-gray-700 hover:bg-gray-50 hover:text-green-600'
-                                  }`}
-                                >
-                                  <span>{dropdownItem.title}</span>
-                                  
-                                  {/* Ícone sutil que aparece apenas no hover */}
-                                  <motion.span 
-                                    initial={{ opacity: 0, x: -5 }}
-                                    whileHover={{ opacity: 1, x: 0 }}
-                                    transition={{ duration: 0.2 }}
-                                    className="text-green-600"
-                                  >
-                                    <ExternalLink size={12} />
-                                  </motion.span>
-                                  
-                                  {/* Indicador de item ativo no dropdown */}
-                                  {location.pathname === dropdownItem.path && (
-                                    <motion.div 
-                                      className="w-0.5 h-full absolute left-0 top-0 rounded-r-full bg-green-600"
-                                      layoutId={`dropdownIndicator-${item.title}-${dropdownItem.title}`}
-                                    />
-                                  )}
-                                </Link>
-                              </motion.div>
-                            ))}
-                          </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </>
-                ) : (
-                  <Link
-                    to={item.path}
-                    className={`px-3 py-1 font-medium transition-colors relative ${
-                      isScrolled
-                        ? location.pathname === item.path 
-                          ? 'text-green-600 font-semibold' 
-                          : 'text-gray-800 hover:text-green-600'
-                        : location.pathname === item.path 
-                          ? 'text-green-300 font-semibold' 
-                          : 'text-white hover:text-green-300'
-                    }`}
-                  >
-                    {item.title}
-                    
-                    {/* Indicador de ativo - linha verde embaixo */}
-                    {location.pathname === item.path && (
-                      <motion.div 
-                        className={`absolute bottom-0 left-0 right-0 h-0.5 rounded-full ${
-                          isScrolled ? 'bg-green-600' : 'bg-green-400'
-                        }`}
-                        layoutId={`desktopIndicator-${item.title}`}
-                        initial={{ width: 0 }}
-                        animate={{ width: '100%' }}
-                        transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                      />
-                    )}
-                    
-                    {/* Hover indicator */}
-                    {location.pathname !== item.path && (
-                      <motion.div 
-                        className={`absolute bottom-0 left-0 right-0 h-0.5 rounded-full origin-left ${
-                          isScrolled ? 'bg-green-600' : 'bg-green-300'
-                        }`}
-                        initial={{ scaleX: 0 }}
-                        whileHover={{ scaleX: 1 }}
-                        transition={{ duration: 0.2 }}
-                      />
-                    )}
-                  </Link>
-                )}
-              </motion.div>
-            ))}
+                    </Link>
+                  )}
+                </motion.div>
+              ))}
+            </div>
           </nav>
 
-          {/* Mobile Menu Button com cor ajustada para tema verde escuro */}
+          {/* Botão Fale Conosco para desktop - VERMELHO */}
+          <div className="hidden lg:block ml-auto">
+            <Button
+              variant="primary" 
+              size="sm"
+              to="/contato"
+              className={`py-2 px-6 ${
+                isScrolled
+                  ? 'bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800'
+                  : 'bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800'
+              } text-white transition-all text-sm rounded-lg shadow-md font-medium`}
+            >
+              Fale Conosco
+            </Button>
+          </div>
+
+          {/* Mobile Menu Button */}
           <motion.button
             ref={menuButtonRef}
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
-            className={`lg:hidden p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 ${
+            className={`lg:hidden p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 ml-auto ${
               isScrolled 
                 ? 'text-gray-800 focus:ring-green-500 focus:ring-offset-white' 
-                : 'text-white focus:ring-green-400 focus:ring-offset-[#0f4d26]'
+                : 'text-white focus:ring-green-400 focus:ring-offset-transparent'
             }`}
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             aria-label={isMenuOpen ? "Fechar menu" : "Abrir menu"}
@@ -436,11 +454,11 @@ const Header = () => {
         </div>
       </div>
 
-      {/* Mobile Navigation - CORRIGIDO para não interferir com cliques */}
+      {/* Mobile Navigation */}
       <AnimatePresence>
         {isMenuOpen && (
           <>
-            {/* Overlay de fundo - SEM BACKDROP BLUR e interativo */}
+            {/* Overlay de fundo */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -451,7 +469,7 @@ const Header = () => {
               aria-hidden="true"
             />
             
-            {/* Menu mobile - z-index aumentado para garantir que fique acima do overlay */}
+            {/* Menu mobile */}
             <motion.div
               id="mobile-menu"
               ref={mobileMenuRef}
@@ -524,7 +542,7 @@ const Header = () => {
                                         ? 'border-green-600 text-green-600 font-medium'
                                         : 'border-gray-200 text-gray-600 hover:text-green-600 hover:border-green-600'
                                     } transition-colors`}
-                                    onClick={() => setIsMenuOpen(false)} // Fecha o menu ao clicar
+                                    onClick={() => setIsMenuOpen(false)}
                                   >
                                     <span>{dropdownItem.title}</span>
                                     
@@ -553,7 +571,7 @@ const Header = () => {
                             ? 'text-green-600 font-semibold border-l-2 border-green-600 pl-2'
                             : 'text-gray-800 hover:text-green-600'
                         }`}
-                        onClick={() => setIsMenuOpen(false)} // Fecha o menu ao clicar
+                        onClick={() => setIsMenuOpen(false)}
                       >
                         {item.title}
                       </Link>
@@ -561,14 +579,13 @@ const Header = () => {
                   </motion.div>
                 ))}
 
-                {/* Elementos de contato no mobile */}
+                {/* Botão de contato no mobile - VERMELHO */}
                 <motion.div 
                   className="mt-6 space-y-4 pb-4"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.3, duration: 0.3 }}
                 >
-                  {/* Botão de orçamento no mobile */}
                   <motion.div
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
@@ -580,28 +597,10 @@ const Header = () => {
                       to="/contato" 
                       fullWidth
                       className="py-3 font-medium rounded-lg shadow-lg bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 flex items-center justify-center gap-2 relative overflow-hidden text-white"
-                      onClick={() => setIsMenuOpen(false)} // Fecha o menu ao clicar
+                      onClick={() => setIsMenuOpen(false)}
                     >
                       <Calendar className="w-5 h-5" />
-                      <span>Agendar Orçamento</span>
-                    </Button>
-                  </motion.div>
-                  
-                  {/* Botão secundário de mensagem */}
-                  <motion.div
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                  >
-                    <Button 
-                      variant="outline" 
-                      size="md" 
-                      to="/contato" 
-                      fullWidth
-                      className="py-3 font-medium rounded-lg flex items-center justify-center gap-2 transition-colors border border-gray-300 text-gray-700 hover:text-green-600 hover:border-green-600"
-                      onClick={() => setIsMenuOpen(false)} // Fecha o menu ao clicar
-                    >
-                      <MessageSquare className="w-5 h-5" />
-                      <span>Enviar Mensagem</span>
+                      <span>Fale Conosco</span>
                     </Button>
                   </motion.div>
                 </motion.div>
