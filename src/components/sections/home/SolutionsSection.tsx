@@ -1,15 +1,22 @@
-// src/components/sections/home/SolutionsSection.tsx
+// Modificação para o SolutionsSection.tsx
 import { useState, useRef, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import solutionsDetailsData from '@/data/solutionsDetailsData';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
-const SolutionsSection = () => {
+// Registrando o plugin ScrollTrigger
+gsap.registerPlugin(ScrollTrigger);
+
+// Componente principal da seção de soluções
+const SolutionsSection: React.FC = () => {
   const [hoveredCard, setHoveredCard] = useState<string | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
-  const [isMobile, setIsMobile] = useState(false);
+  const [screenSize, setScreenSize] = useState<'mobile' | 'small' | 'medium' | 'desktop'>('desktop');
   const carouselRef = useRef<HTMLDivElement>(null);
+  const sectionRef = useRef<HTMLElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
   const [scrollLeft, setScrollLeft] = useState(0);
@@ -17,7 +24,17 @@ const SolutionsSection = () => {
   // Check if mobile view
   useEffect(() => {
     const handleResize = () => {
-      setIsMobile(window.innerWidth < 768);
+      const width = window.innerWidth;
+      
+      if (width < 480) {
+        setScreenSize('mobile');
+      } else if (width < 640) {
+        setScreenSize('small');
+      } else if (width < 1024) {
+        setScreenSize('medium');
+      } else {
+        setScreenSize('desktop');
+      }
     };
     
     handleResize(); // Initial check
@@ -27,25 +44,30 @@ const SolutionsSection = () => {
 
   // Auto-rotate carousel on mobile
   useEffect(() => {
-    if (!isMobile || isDragging) return;
-    
-    const interval = setInterval(() => {
-      setActiveIndex((prev) => (prev + 1) % solutionsDetailsData.length);
-    }, 5000); // Change slide every 5 seconds
-    
-    return () => clearInterval(interval);
-  }, [isMobile, isDragging]);
+    if ((screenSize === 'mobile' || screenSize === 'small') && !isDragging) {
+      const interval = setInterval(() => {
+        setActiveIndex((prev) => (prev + 1) % solutionsDetailsData.length);
+      }, 5000); // Change slide every 5 seconds
+      
+      return () => clearInterval(interval);
+    }
+  }, [screenSize, isDragging]);
 
   // Scroll carousel to active index
   useEffect(() => {
-    if (isMobile && carouselRef.current) {
-      const scrollAmount = activeIndex * (carouselRef.current.offsetWidth / 1.2);
-      carouselRef.current.scrollTo({
-        left: scrollAmount,
-        behavior: 'smooth'
+    if ((screenSize === 'mobile' || screenSize === 'small') && carouselRef.current) {
+      const cardElement = carouselRef.current.querySelector('.solution-card');
+      const cardWidth = cardElement ? cardElement.clientWidth : 0;
+      const gap = 16;
+      const scrollAmount = activeIndex * (cardWidth + gap);
+      
+      gsap.to(carouselRef.current, {
+        scrollLeft: scrollAmount,
+        duration: 0.6,
+        ease: "power2.out"
       });
     }
-  }, [activeIndex, isMobile]);
+  }, [activeIndex, screenSize]);
 
   // Handle drag events for mobile carousel
   const handleMouseDown = (e: React.MouseEvent) => {
@@ -82,9 +104,10 @@ const SolutionsSection = () => {
   const handleDragEnd = () => {
     setIsDragging(false);
     if (carouselRef.current) {
-      // Find which card is most visible in viewport
-      const cardWidth = carouselRef.current.offsetWidth / 1.2;
-      const newIndex = Math.round(carouselRef.current.scrollLeft / cardWidth);
+      const cardElement = carouselRef.current.querySelector('.solution-card');
+      const cardWidth = cardElement ? cardElement.clientWidth : 0;
+      const gap = 16;
+      const newIndex = Math.round(carouselRef.current.scrollLeft / (cardWidth + gap));
       setActiveIndex(Math.min(Math.max(newIndex, 0), solutionsDetailsData.length - 1));
     }
   };
@@ -99,28 +122,139 @@ const SolutionsSection = () => {
     });
   };
 
-  const cardVariants = {
-    hidden: { opacity: 0, y: 30 },
-    visible: (i: number) => ({
-      opacity: 1,
-      y: 0,
-      transition: {
-        delay: i * 0.1,
-        duration: 0.5,
-        ease: "easeOut"
-      }
-    }),
-    hover: {
-      y: -5,
-      boxShadow: "0 10px 25px rgba(0, 0, 0, 0.1)",
-      transition: {
-        duration: 0.3
-      }
+  // Classes dinâmicas
+  const getCarouselClass = (): string => {
+    if (screenSize === 'mobile' || screenSize === 'small') {
+      return "flex overflow-x-auto snap-x snap-mandatory hide-scrollbar pb-6";
+    } else if (screenSize === 'medium') {
+      return "grid grid-cols-2 gap-6";
+    } else {
+      return "grid grid-cols-4 gap-6";
     }
   };
 
+  const getCardClass = (): string => {
+    const baseClass = "solution-card relative overflow-hidden rounded-xl group cursor-pointer shadow-lg transition-all duration-300";
+    
+    if (screenSize === 'mobile' || screenSize === 'small') {
+      return `${baseClass} min-w-[85%] mr-4 flex-shrink-0 snap-center h-64`;
+    } else if (screenSize === 'medium') {
+      return `${baseClass} h-72`;
+    } else {
+      return `${baseClass} h-64`;
+    }
+  };
+
+  // Componente SVG de linha industrial
+  const IndustrialLineSVG: React.FC<{ className?: string; color?: string; delay?: number }> = ({ 
+    className, 
+    color = "#0047AB", 
+    delay = 0 
+  }) => {
+    const svgRef = useRef<SVGSVGElement>(null);
+    
+    useEffect(() => {
+      if (svgRef.current) {
+        const paths = svgRef.current.querySelectorAll('path');
+        const dots = svgRef.current.querySelectorAll('circle');
+        
+        // Configurar o traço inicial para cada path
+        paths.forEach((path) => {
+          const length = path.getTotalLength();
+          gsap.set(path, {
+            strokeDasharray: length,
+            strokeDashoffset: length
+          });
+        });
+        
+        // Esconder os pontos inicialmente
+        gsap.set(dots, { scale: 0, opacity: 0 });
+        
+        // Criar uma timeline para sequenciar as animações
+        const tl = gsap.timeline({
+          scrollTrigger: {
+            trigger: svgRef.current,
+            start: 'top 80%',
+            toggleActions: 'play none none reset'
+          }
+        });
+        
+        // Animar o desenho das linhas
+        tl.to(paths, {
+          strokeDashoffset: 0,
+          duration: 1.2,
+          ease: "power2.inOut",
+          stagger: 0.15,
+          delay
+        });
+        
+        // Animar a aparição dos pontos
+        tl.to(dots, {
+          scale: 1,
+          opacity: 1,
+          duration: 0.4,
+          stagger: 0.1,
+          ease: "back.out(1.7)"
+        }, "-=0.5");
+        
+        // Adicionar um sutil efeito de brilho nas linhas
+        gsap.to(paths, {
+          strokeOpacity: 0.8,
+          repeat: -1,
+          yoyo: true,
+          duration: 2,
+          ease: "sine.inOut",
+          delay: delay + 1.5
+        });
+      }
+    }, [delay, color]);
+
+    return (
+      <svg 
+        ref={svgRef} 
+        className={className} 
+        viewBox="0 0 300 50" 
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+      >
+        <circle cx="20" cy="25" r="5" fill={color} />
+        <path 
+          d="M20,25 L100,25" 
+          stroke={color} 
+          strokeWidth="3" 
+          strokeLinecap="round" 
+        />
+        <path 
+          d="M100,25 L160,10" 
+          stroke={color} 
+          strokeWidth="3" 
+          strokeLinecap="round" 
+        />
+        <path 
+          d="M160,10 L280,10" 
+          stroke={color} 
+          strokeWidth="3" 
+          strokeLinecap="round" 
+        />
+        <circle cx="100" cy="25" r="5" fill={color} />
+        <circle cx="160" cy="10" r="5" fill={color} />
+        <circle cx="280" cy="10" r="5" fill={color} />
+      </svg>
+    );
+  };
+
   return (
-    <section className="py-20 bg-white overflow-hidden" id="solutions">
+    <section 
+      ref={sectionRef}
+      className="py-20 overflow-hidden bg-svg-background" // Adicionada classe para o SVG
+      id="solutions"
+      style={{
+        backgroundImage: `url('/images/paginas/Desktop.svg')`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat'
+      }}
+    >
       <div className="container mx-auto px-4">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
@@ -144,9 +278,10 @@ const SolutionsSection = () => {
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="text-3xl md:text-4xl font-bold text-gray-800"
+              className="text-3xl md:text-4xl font-bold text-gray-800 relative"
             >
               Nossas Soluções
+              <div className="w-20 h-1 mt-2 bg-blue-500"></div>
             </motion.h2>
           </div>
           <motion.div
@@ -172,7 +307,7 @@ const SolutionsSection = () => {
         </motion.div>
 
         {/* Mobile Carousel Navigation */}
-        {isMobile && (
+        {(screenSize === 'mobile' || screenSize === 'small') && (
           <div className="flex justify-between items-center mb-6">
             <button 
               onClick={() => navigateCarousel('prev')}
@@ -205,128 +340,135 @@ const SolutionsSection = () => {
           </div>
         )}
 
-        {/* Mobile Carousel / Desktop Grid */}
+        {/* Cards grid */}
         <div
           ref={carouselRef}
-          className={`${
-            isMobile 
-              ? 'flex overflow-x-auto snap-x snap-mandatory hide-scrollbar' 
-              : 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6'
-          }`}
-          onMouseDown={isMobile ? handleMouseDown : undefined}
-          onMouseMove={isMobile ? handleMouseMove : undefined}
-          onMouseUp={isMobile ? handleDragEnd : undefined}
-          onMouseLeave={isMobile ? handleDragEnd : undefined}
-          onTouchStart={isMobile ? handleTouchStart : undefined}
-          onTouchMove={isMobile ? handleTouchMove : undefined}
-          onTouchEnd={isMobile ? handleDragEnd : undefined}
+          className={getCarouselClass()}
+          onMouseDown={(screenSize === 'mobile' || screenSize === 'small') ? handleMouseDown : undefined}
+          onMouseMove={(screenSize === 'mobile' || screenSize === 'small') ? handleMouseMove : undefined}
+          onMouseUp={(screenSize === 'mobile' || screenSize === 'small') ? handleDragEnd : undefined}
+          onMouseLeave={(screenSize === 'mobile' || screenSize === 'small') ? handleDragEnd : undefined}
+          onTouchStart={(screenSize === 'mobile' || screenSize === 'small') ? handleTouchStart : undefined}
+          onTouchMove={(screenSize === 'mobile' || screenSize === 'small') ? handleTouchMove : undefined}
+          onTouchEnd={(screenSize === 'mobile' || screenSize === 'small') ? handleDragEnd : undefined}
           style={{ 
             scrollbarWidth: 'none',
             msOverflowStyle: 'none',
             WebkitOverflowScrolling: 'touch'
           }}
         >
-          {solutionsDetailsData.map((solution, index) => {
-            return (
-              <motion.div
-                key={solution.id}
-                custom={index}
-                initial="hidden"
-                whileInView="visible"
-                whileHover="hover"
-                viewport={{ once: true, margin: "-50px" }}
-                variants={cardVariants}
-                className={`
-                  relative overflow-hidden rounded-xl group h-64 cursor-pointer shadow-lg
-                  transition-all duration-300
-                  ${isMobile ? 'min-w-[85%] mr-4 flex-shrink-0 snap-center' : ''}
-                `}
-                onMouseEnter={() => setHoveredCard(solution.id)}
-                onMouseLeave={() => setHoveredCard(null)}
-              >
-                {/* Link envolvendo todo o card */}
-                <Link
-                  to={`/solucoes/${solution.id}`}
-                  className="absolute inset-0 z-20"
-                  aria-label={`Ver detalhes de ${solution.title}`}
-                ></Link>
-                
-                {/* Card Background Effect */}
-                <motion.div 
-                  className="absolute inset-0 bg-gradient-to-br from-blue-600/10 to-purple-700/10 z-0 opacity-0 group-hover:opacity-100"
-                  initial={{ opacity: 0 }}
-                  whileHover={{ opacity: 1 }}
-                  transition={{ duration: 0.5 }}
+          {solutionsDetailsData.map((solution, index) => (
+            <motion.div
+              key={solution.id}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ 
+                opacity: 1, 
+                y: 0,
+                transition: { 
+                  duration: 0.6, 
+                  delay: index * 0.1,
+                  ease: "easeOut" 
+                }
+              }}
+              viewport={{ once: true, margin: "-50px" }}
+              whileHover="hover"
+              variants={{
+                hover: {
+                  y: -8,
+                  transition: {
+                    duration: 0.3,
+                    ease: "easeOut"
+                  }
+                }
+              }}
+              className={getCardClass()}
+              onMouseEnter={() => setHoveredCard(solution.id)}
+              onMouseLeave={() => setHoveredCard(null)}
+            >
+              {/* Link envolvendo todo o card */}
+              <Link
+                to={`/solucoes/${solution.id}`}
+                className="absolute inset-0 z-20"
+                aria-label={`Ver detalhes de ${solution.title}`}
+              ></Link>
+              
+              {/* SVG industrial line no topo do card - bem visível quando hover */}
+              <div className="absolute top-0 left-0 w-full h-10 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <IndustrialLineSVG 
+                  className="w-full h-full" 
+                  delay={index * 0.05}
                 />
-                
-                {/* Card Image */}
-                <motion.div 
-                  className="absolute inset-0"
-                  initial={{ scale: 1 }}
-                  whileHover={{ scale: 1.05 }}
-                  transition={{ duration: 0.6, ease: "easeOut" }}
-                >
-                  <img 
-                    src={solution.image}
-                    alt={solution.title}
-                    className="w-full h-full object-cover"
-                    loading="lazy"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
-                </motion.div>
-                
-                {/* Card Content */}
-                <div className="absolute inset-0 p-6 flex flex-col justify-between z-10">
-                  <div className="h-full flex flex-col">
-                    {/* Ícones removidos conforme solicitado */}
-                    
-                    {/* Title with animation */}
-                    <motion.h3 
-                      className="text-2xl font-bold text-white mt-auto"
-                      initial={{ y: 10, opacity: 0 }}
-                      whileInView={{ y: 0, opacity: 1 }}
-                      transition={{ delay: index * 0.1 + 0.1, duration: 0.5 }}
-                    >
-                      {solution.title}
-                    </motion.h3>
-                    
-                    {/* Description with improved animation */}
-                    <AnimatePresence>
-                      {(hoveredCard === solution.id || isMobile) && (
-                        <motion.div
-                          initial={{ opacity: 0, height: 0 }}
-                          animate={{ opacity: 1, height: 'auto' }}
-                          exit={{ opacity: 0, height: 0 }}
-                          transition={{ duration: 0.3, ease: "easeInOut" }}
-                          className="mt-2 overflow-hidden"
-                        >
-                          <p className="text-white/90 text-sm leading-relaxed">
-                            {solution.shortDescription}
-                          </p>
-                          <motion.div
-                            initial={{ x: -5, opacity: 0 }}
-                            animate={{ x: 0, opacity: 1 }}
-                            transition={{ delay: 0.2 }}
-                          >
-                            <span className="inline-flex items-center text-blue-300 font-medium text-sm mt-2 hover:text-blue-100 transition-colors">
-                              Saiba mais 
-                              <motion.div
-                                initial={{ x: 0 }}
-                                whileHover={{ x: 3 }}
-                                transition={{ duration: 0.2 }}
-                              >
-                                <ArrowRight size={14} className="ml-1" />
-                              </motion.div>
-                            </span>
-                          </motion.div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
+              </div>
+              
+              {/* Card Image com efeito de zoom no hover */}
+              <motion.div 
+                className="absolute inset-0"
+                variants={{
+                  hover: {
+                    scale: 1.05,
+                    transition: {
+                      duration: 0.6,
+                      ease: "easeOut"
+                    }
+                  }
+                }}
+              >
+                <img 
+                  src={solution.image}
+                  alt={solution.title}
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+              </motion.div>
+              
+              {/* Card Content com animações */}
+              <div className="absolute inset-0 p-6 flex flex-col justify-between z-10">
+                <div className="h-full flex flex-col">
+                  {/* Título com animação */}
+                  <motion.h3 
+                    className="text-2xl font-bold text-white mt-auto"
+                    initial={{ y: 10, opacity: 0 }}
+                    whileInView={{ y: 0, opacity: 1 }}
+                    transition={{ delay: index * 0.1 + 0.1, duration: 0.5 }}
+                  >
+                    {solution.title}
+                  </motion.h3>
+                  
+                  {/* Descrição com animação melhorada */}
+                  <div
+                    className={`mt-2 overflow-hidden transition-all duration-300 ${
+                      hoveredCard === solution.id || screenSize === 'mobile' || screenSize === 'small'
+                        ? 'max-h-32 opacity-100'
+                        : 'max-h-0 opacity-0'
+                    }`}
+                  >
+                    <p className="text-white/90 text-sm leading-relaxed">
+                      {solution.shortDescription}
+                    </p>
+                    <div className="flex items-center text-blue-300 font-medium text-sm mt-2 group-hover:text-blue-100 transition-colors">
+                      <span>Saiba mais</span>
+                      <motion.div
+                        variants={{
+                          hover: {
+                            x: 5,
+                            transition: {
+                              duration: 0.2,
+                              ease: "easeOut",
+                              delay: 0.1
+                            }
+                          }
+                        }}
+                        className="ml-1"
+                      >
+                        <ArrowRight size={14} />
+                      </motion.div>
+                    </div>
                   </div>
                 </div>
-              </motion.div>
-            );
-          })}
+              </div>
+            </motion.div>
+          ))}
         </div>
       </div>
     </section>
@@ -334,14 +476,3 @@ const SolutionsSection = () => {
 };
 
 export default SolutionsSection;
-
-// Adicione este CSS ao seu arquivo global de estilos
-/*
-.hide-scrollbar::-webkit-scrollbar {
-  display: none;
-}
-.hide-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-*/

@@ -8,6 +8,9 @@ import { ScrollToPlugin } from 'gsap/ScrollToPlugin';
 import '@/styles/svgAnimation.css';
 import AnimatedAutomacaoSvg from '@/components/ui/AnimatedAutomacaoSvg';
 import AnimatedLinhasSvg from '@/components/ui/AnimatedLinhasSvg';
+// Importar os componentes de scroll corrigidos
+import LeftScrollIcons from '@/components/ui/LeftScrollIcons';
+import RightScrollIcons from '@/components/ui/RightScrollIcons';
 
 gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
 
@@ -186,6 +189,9 @@ const HeroSection = () => {
           />
         </div>
       </div>
+
+      {/* Ícones no lado esquerdo - agora limitados por top-[20%] bottom-[20%] */}
+      <LeftScrollIcons />
       
       {/* Container principal com padding ajustável */}
       <div className={`container mx-auto px-2 sm:px-4 md:px-6 lg:px-8 py-6 sm:py-8 md:py-12 lg:py-16 relative z-10`}>
@@ -258,6 +264,9 @@ const HeroSection = () => {
           </motion.div>
         </div>
       </div>
+      
+      {/* Ícones no lado direito - agora limitados por top-[20%] bottom-[20%] */}
+      <RightScrollIcons />
       
       {/* Botão de scroll */}
       <div className="absolute bottom-4 sm:bottom-6 md:bottom-8 left-0 right-0 flex justify-center z-20">

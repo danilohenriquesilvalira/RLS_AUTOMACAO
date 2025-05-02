@@ -37,28 +37,51 @@ const SolucaoDetalhe = () => {
 
   return (
     <Layout pageTitle={solution.title}>
-      {/* 
-        Hero Banner - Versão final com responsividade garantida em todos os dispositivos 
-      */}
-      <div className="relative bg-[#004d25]"> {/* Cor de fallback caso o SVG não carregue */}
+      {/* Hero Banner - Melhorado com os mesmos padrões da SolucoesPage */}
+      <div className="relative bg-[#0b1033]"> {/* Mesma cor de background que a SolucoesPage */}
+        {/* Padrão de pontos */}
+        <div 
+          className="absolute inset-0 opacity-5"
+          style={{
+            backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)',
+            backgroundSize: '20px 20px'
+          }}
+        ></div>
+        
         {/* Background SVG com responsividade aprimorada */}
         <div 
           className="absolute top-0 left-0 w-full h-full"
           style={{
             backgroundImage: "url('/images/solutions/Imagem_Topo.svg')",
             backgroundSize: "cover",
-            backgroundPosition: "50% 50%", /* Centralização perfeita */
+            backgroundPosition: "center center",
             backgroundRepeat: "no-repeat",
-            zIndex: 0
+            zIndex: 0,
+            opacity: 0.9
           }}
         ></div>
         
+        {/* Gradiente melhorado */}
+        <div 
+          className="absolute top-0 left-0 w-full h-full"
+          style={{
+            background: "linear-gradient(to right, rgba(11,16,51,0.8) 0%, rgba(11,16,51,0.5) 100%)",
+            zIndex: 1
+          }}
+        ></div>
+        
+        {/* Linhas decorativas horizontais sutis */}
+        <div className="absolute inset-0 z-1 opacity-10">
+          <div className="h-px w-full bg-gradient-to-r from-transparent via-white to-transparent absolute top-[30%]"></div>
+          <div className="h-px w-full bg-gradient-to-r from-transparent via-white to-transparent absolute top-[60%]"></div>
+        </div>
+        
         {/* Conteúdo com camada própria para garantir visibilidade */}
-        <div className="relative z-10 pt-28 pb-16 md:pt-36 md:pb-20 text-white min-h-[350px]">
+        <div className="relative z-10 pt-32 pb-20 md:pt-40 md:pb-28 text-white min-h-[400px]">
           <div className="container mx-auto px-4">
             <div className="mb-4">
-              <Link to="/solucoes" className="inline-flex items-center text-green-100 hover:text-white transition-colors">
-                <ArrowLeft size={18} className="mr-2" /> Voltar para soluções
+              <Link to="/solucoes" className="inline-flex items-center text-white/80 hover:text-white transition-colors group">
+                <ArrowLeft size={18} className="mr-2 group-hover:-translate-x-1 transition-transform" /> Voltar para soluções
               </Link>
             </div>
             <div className="max-w-3xl">
@@ -68,7 +91,7 @@ const SolucaoDetalhe = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
               >
-                <div className={`w-14 h-14 rounded-full ${solution.color || 'bg-red-600'} text-white flex items-center justify-center mr-4`}>
+                <div className={`w-14 h-14 rounded-full ${solution.color || 'bg-green-600'} text-white flex items-center justify-center mr-4 shadow-lg`}>
                   <Icon size={28} />
                 </div>
                 <h1 className="text-4xl md:text-5xl font-bold">
@@ -76,7 +99,7 @@ const SolucaoDetalhe = () => {
                 </h1>
               </motion.div>
               <motion.p 
-                className="text-xl text-green-100 mb-8"
+                className="text-xl text-white/90 mb-8"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.1 }}
@@ -100,7 +123,9 @@ const SolucaoDetalhe = () => {
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.6 }}
                 >
-                  <h2 className="text-3xl font-bold text-gray-800 mb-6">Serviços de {solution.title}</h2>
+                  <h2 className="text-3xl font-bold text-gray-800 mb-6">
+                    Serviços de <span className="bg-clip-text text-transparent bg-gradient-to-r from-green-500 to-green-700">{solution.title}</span>
+                  </h2>
                   <p className="text-gray-600 mb-8">
                     {solution.description}
                   </p>
@@ -115,7 +140,7 @@ const SolucaoDetalhe = () => {
                           transition={{ delay: 0.3 + (index * 0.1), duration: 0.5 }}
                           className="flex items-start"
                         >
-                          <div className={`min-w-6 h-6 rounded-full flex items-center justify-center ${solution.color || 'bg-red-600'} text-white mr-3 mt-0.5`}>
+                          <div className={`min-w-6 h-6 rounded-full flex items-center justify-center ${solution.color || 'bg-green-600'} text-white mr-3 mt-0.5 shadow-sm`}>
                             <Check size={14} />
                           </div>
                           <span className="text-gray-700">{service}</span>
@@ -138,11 +163,11 @@ const SolucaoDetalhe = () => {
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.6, delay: 0.2 }}
                 >
-                  <div className="relative h-80 rounded-xl overflow-hidden shadow-lg">
+                  <div className="relative h-80 rounded-xl overflow-hidden shadow-lg group">
                     <img 
                       src={solution.image} 
                       alt={solution.title} 
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                     />
                     {solution.caseStudy && (
                       <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex flex-col justify-end p-6">
@@ -156,10 +181,22 @@ const SolucaoDetalhe = () => {
               </div>
             </div>
 
-            {/* CTA Section */}
-            <div className="bg-white p-8 rounded-xl shadow-sm border border-gray-100">
-              <div className="text-center">
-                <h3 className="text-2xl font-bold text-gray-800 mb-4">Precisa de soluções para sua indústria?</h3>
+            {/* CTA Section - Design modernizado */}
+            <div className="bg-white p-8 md:p-12 rounded-2xl shadow-lg border border-gray-100 relative overflow-hidden">
+              {/* Padrão de pontos no fundo da CTA */}
+              <div 
+                className="absolute inset-0 opacity-5"
+                style={{
+                  backgroundImage: 'radial-gradient(circle, #000 1px, transparent 1px)',
+                  backgroundSize: '20px 20px'
+                }}
+              ></div>
+              
+              {/* Linha decorativa */}
+              <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-green-500 to-transparent"></div>
+              
+              <div className="text-center relative z-10">
+                <h3 className="text-2xl md:text-3xl font-bold text-gray-800 mb-4">Precisa de soluções para sua indústria?</h3>
                 <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
                   Entre em contato para discutir como nossas soluções de automação podem atender às necessidades específicas de sua operação.
                 </p>
@@ -167,8 +204,8 @@ const SolucaoDetalhe = () => {
                   variant="primary"
                   size="lg"
                   to="/contato"
-                  icon={<ArrowRight size={18} />}
-                  className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white"
+                  icon={<ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />}
+                  className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white group"
                 >
                   Solicite uma consultoria
                 </Button>
