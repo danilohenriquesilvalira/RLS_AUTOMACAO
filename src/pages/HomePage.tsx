@@ -2,10 +2,8 @@
 import { useEffect } from 'react';
 import Layout from '@/components/layout/Layout';
 import HeroSection from '@/components/sections/home/HeroSection';
-import SolutionsSection from '@/components/sections/home/SolutionsSection';
-import IndustriesSection from '@/components/sections/home/IndustriesSection';
-// Importar o novo componente de scroll horizontal
-import HorizontalScrollSection from '@/components/sections/home/HorizontalScrollSection';
+import IntegratedSolutionsSection from '@/components/sections/home/IntegratedSolutionsSection';
+import ModernSectionDivider from '@/components/ui/ModernSectionDivider';
 
 // Gerenciador de animações
 import { animateOnScroll } from '@/animations/gsapAnimations';
@@ -24,11 +22,29 @@ const HomePage = () => {
 
   return (
     <Layout>
-      <HeroSection />
-      {/* Novo componente de scroll horizontal com os ícones de tecnologia */}
-      <HorizontalScrollSection />
-      <SolutionsSection />
-      <IndustriesSection />
+      {/* Hero Section */}
+      <div id="hero">
+        <HeroSection />
+      </div>
+      
+      {/* Transição sutil do Hero para a seção integrada */}
+      <ModernSectionDivider 
+        type="minimal" 
+        fillColor="#e0e0e0" 
+        nextSectionId="solutions"
+      />
+      
+      {/* Seção integrada que combina Mercados e Áreas de Negócio */}
+      <IntegratedSolutionsSection />
+      
+      {/* Transição para Indústrias */}
+      <ModernSectionDivider 
+        type="minimal" 
+        fillColor="#e0e0e0"
+        nextSectionId="industries"
+      />
+      
+
     </Layout>
   );
 };
