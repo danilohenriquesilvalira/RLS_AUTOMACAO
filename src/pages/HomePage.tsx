@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import Layout from '@/components/layout/Layout';
 import HeroSection from '@/components/sections/home/HeroSection';
 import IntegratedSolutionsSection from '@/components/sections/home/IntegratedSolutionsSection';
+import CustomAutomationSection from '@/components/sections/home/CustomAutomationSection';
 import ModernSectionDivider from '@/components/ui/ModernSectionDivider';
 
 // Gerenciador de animações
@@ -29,22 +30,33 @@ const HomePage = () => {
       
       {/* Transição sutil do Hero para a seção integrada */}
       <ModernSectionDivider 
-        type="minimal" 
-        fillColor="#e0e0e0" 
+        type="minimal"
+        fillColor="#e0e0e0"
         nextSectionId="solutions"
       />
       
       {/* Seção integrada que combina Mercados e Áreas de Negócio */}
       <IntegratedSolutionsSection />
       
+      {/* Transição para a seção de Automação à Medida */}
+      <ModernSectionDivider 
+        type="minimal"
+        fillColor="#e0e0e0"
+        nextSectionId="custom-automation"
+      />
+      
+      {/* Nova seção de Automação à Medida e Serviços/Tecnologias */}
+      <CustomAutomationSection />
+      
       {/* Transição para Indústrias */}
       <ModernSectionDivider 
-        type="minimal" 
+        type="minimal"
         fillColor="#e0e0e0"
         nextSectionId="industries"
       />
       
-
+      {/* Outras seções aqui... */}
+      
     </Layout>
   );
 };

@@ -242,10 +242,10 @@ const solutions: Solution[] = [
   },
   {
     id: 'seguranca-cibernetica',
-    title: 'SEGURANÇA CIBERNÉTICA OT',
+    title: 'INDUSTRIA 4.0 IOT',
     shortDescription: 'Proteção de sistemas operacionais industriais contra ameaças digitais',
     fullDescription: 'Protegemos ambientes industriais contra ameaças cibernéticas com avaliações de vulnerabilidade, design de arquitetura segura e implementação de controles de segurança específicos para tecnologia operacional (OT).',
-    image: '/images/solutions/SegurancaCibernetica.jpg',
+    image: '/images/solutions/Industria4.0.png',
     color: 'rgba(0, 0, 0, 0.9)',
     benefits: [
       'Proteção contínua de ativos críticos',
@@ -396,13 +396,9 @@ const IntegratedSolutionsSection = () => {
   const [visibleCount, setVisibleCount] = useState(3);
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
-  const [selectedSolution, setSelectedSolution] = useState<Solution | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedTab, setSelectedTab] = useState<'overview' | 'details' | 'cases'>('overview');
   const [isHovering, setIsHovering] = useState<number | null>(null);
   const sliderRef = useRef<HTMLDivElement>(null);
   const iconsScrollRef = useRef<HTMLDivElement>(null);
-  const detailsRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
 
   // Ajusta o número de soluções visíveis com base no tamanho da tela
@@ -519,13 +515,6 @@ const IntegratedSolutionsSection = () => {
   // Navegação com teclado
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (isModalOpen) {
-        if (e.key === 'Escape') {
-          setIsModalOpen(false);
-        }
-        return;
-      }
-
       if (e.key === 'ArrowLeft') {
         goPrev();
       } else if (e.key === 'ArrowRight') {
@@ -535,7 +524,7 @@ const IntegratedSolutionsSection = () => {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isModalOpen]);
+  }, []);
 
   // Funções para navegação com toque
   const onTouchStart = (e: React.TouchEvent) => {
@@ -563,20 +552,11 @@ const IntegratedSolutionsSection = () => {
   // Auto-play do carrossel
   useEffect(() => {
     const timer = setInterval(() => {
-      if (!isModalOpen) {
-        goNext();
-      }
+      goNext();
     }, 8000); // Muda a cada 8 segundos
     
     return () => clearInterval(timer);
-  }, [isModalOpen]);
-
-  // Scrollar para os detalhes quando uma solução for selecionada
-  useEffect(() => {
-    if (selectedSolution && detailsRef.current) {
-      detailsRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-  }, [selectedSolution]);
+  }, []);
 
   // Cria array circular para exibição do slider
   const getVisibleSolutions = () => {
@@ -588,18 +568,9 @@ const IntegratedSolutionsSection = () => {
     return visibleSolutions;
   };
 
-  // Função para clicar no card inteiro
+  // Função para clicar no card inteiro - agora navega diretamente para a página da solução
   const handleCardClick = (id: string) => {
-    const solution = solutions.find(s => s.id === id);
-    if (solution) {
-      setSelectedSolution(solution);
-    }
-  };
-
-  // Função para fechar o modal
-  const closeModal = () => {
-    setIsModalOpen(false);
-    setTimeout(() => setSelectedSolution(null), 300);
+    navigate(`/solucoes/${id}`);
   };
 
   return (
@@ -607,15 +578,13 @@ const IntegratedSolutionsSection = () => {
       className="relative w-full overflow-hidden"
       id="solutions"
       style={{
-        backgroundImage: 'url(/images/solutions/FundoSolutions.svg)',
-        backgroundSize: 'cover',
+        background: `linear-gradient(to bottom, rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.85)), url(/images/solutions/FundoSolutions.svg)`,
+        backgroundSize: '100% 100%',
         backgroundPosition: 'center',
+        backgroundAttachment: 'fixed',
         backgroundRepeat: 'no-repeat'
       }}
     >
-      {/* Camada semitransparente para melhorar legibilidade do conteúdo */}
-      <div className="absolute inset-0 bg-white bg-opacity-80 backdrop-blur-sm"></div>
-      
       {/* Conteúdo principal */}
       <div className="relative z-10 py-16">
         {/* Título e subtítulo */}
@@ -776,9 +745,12 @@ const IntegratedSolutionsSection = () => {
             
             {/* Ícones de mercados com pausar no hover */}
             <div className="w-full overflow-hidden relative">
+              <div className="absolute top-0 left-0 h-full w-16 bg-gradient-to-r from-white to-transparent z-20 pointer-events-none"></div>
+              <div className="absolute top-0 right-0 h-full w-16 bg-gradient-to-l from-white to-transparent z-20 pointer-events-none"></div>
+              
               <div 
                 ref={iconsScrollRef}
-                className="flex whitespace-nowrap"
+                className="flex whitespace-nowrap py-4"
                 style={{ animationPlayState: isHovering !== null ? 'paused' : 'running' }}
               >
                 {duplicatedMarkets.map((market, index) => (
@@ -804,280 +776,10 @@ const IntegratedSolutionsSection = () => {
                   </div>
                 ))}
               </div>
-              
-              {/* Gradiente para criar efeito de fade nos lados */}
-              <div className="absolute top-0 left-0 h-full w-16 bg-gradient-to-r from-white to-transparent"></div>
-              <div className="absolute top-0 right-0 h-full w-16 bg-gradient-to-l from-white to-transparent"></div>
             </div>
           </div>
         </div>
       </div>
-
-      {/* Seção de detalhes da solução selecionada */}
-      {selectedSolution && (
-        <div 
-          ref={detailsRef}
-          className="relative z-10 bg-white bg-opacity-95 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 mt-12 border-t border-gray-200"
-        >
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="text-center mb-12"
-          >
-            <h2 className="text-3xl font-bold text-gray-900 mb-4 relative inline-block">
-              {selectedSolution.title}
-              <div className="absolute -bottom-2 left-0 w-full h-1 bg-[#42B653] opacity-30"></div>
-            </h2>
-            <p className="text-lg text-gray-600 max-w-4xl mx-auto">{selectedSolution.fullDescription}</p>
-          </motion.div>
-
-          {/* Tabs de navegação - Estilo melhorado */}
-          <div className="flex justify-center mb-8 border-b border-gray-200">
-            <button
-              onClick={() => setSelectedTab('overview')}
-              className={`px-6 py-3 text-lg font-medium transition-all duration-300 ${
-                selectedTab === 'overview' 
-                  ? 'text-[#42B653] border-b-2 border-[#42B653]' 
-                  : 'text-gray-500 hover:text-gray-700'
-              }`}
-            >
-              Visão Geral
-            </button>
-            <button
-              onClick={() => setSelectedTab('details')}
-              className={`px-6 py-3 text-lg font-medium transition-all duration-300 ${
-                selectedTab === 'details' 
-                  ? 'text-[#42B653] border-b-2 border-[#42B653]' 
-                  : 'text-gray-500 hover:text-gray-700'
-              }`}
-            >
-              Detalhes Técnicos
-            </button>
-            <button
-              onClick={() => setSelectedTab('cases')}
-              className={`px-6 py-3 text-lg font-medium transition-all duration-300 ${
-                selectedTab === 'cases' 
-                  ? 'text-[#42B653] border-b-2 border-[#42B653]' 
-                  : 'text-gray-500 hover:text-gray-700'
-              }`}
-            >
-              Casos de Sucesso
-            </button>
-          </div>
-
-          {/* Conteúdo das tabs */}
-          <AnimatePresence mode="wait">
-            {selectedTab === 'overview' && (
-              <motion.div
-                key="overview"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.3 }}
-              >
-                {/* Estatísticas */}
-                {selectedSolution.stats && (
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-                    {selectedSolution.stats.map((stat, index) => (
-                      <motion.div
-                        key={index}
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ duration: 0.3, delay: index * 0.1 }}
-                        className="bg-white rounded-lg shadow-md p-6 text-center border-l-4 border-[#42B653] hover:shadow-lg transition-all duration-300 hover-scale"
-                      >
-                        <h3 className="text-3xl md:text-4xl font-bold text-[#42B653] mb-2">{stat.value}</h3>
-                        <p className="text-gray-700">{stat.label}</p>
-                      </motion.div>
-                    ))}
-                  </div>
-                )}
-
-                {/* Benefícios - Estilo melhorado */}
-                <div className="bg-gray-50 rounded-lg p-8 mb-12 hover:shadow-md transition-all duration-300">
-                  <h3 className="text-2xl font-bold text-gray-900 mb-6 flex items-center">
-                    <Check className="w-6 h-6 text-[#42B653] mr-2" />
-                    Principais Benefícios
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4">
-                    {selectedSolution.benefits.map((benefit, index) => (
-                      <motion.div
-                        key={index}
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.3, delay: index * 0.1 }}
-                        className="flex items-start"
-                      >
-                        <div className="flex-shrink-0 mt-1">
-                          <Check className="w-5 h-5 text-[#42B653]" />
-                        </div>
-                        <p className="ml-3 text-gray-700">{benefit}</p>
-                      </motion.div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* CTA */}
-                <div className="text-center">
-                  <button
-                    onClick={() => navigate(`/solucoes/${selectedSolution.id}`)}
-                    className="bg-[#42B653] hover:bg-[#3aa348] text-white font-bold py-4 px-8 rounded-lg transition-all duration-300 inline-flex items-center hover:shadow-lg transform hover:-translate-y-1"
-                  >
-                    Ver Todos os Detalhes
-                    <ArrowRight className="ml-2 w-5 h-5" />
-                  </button>
-                </div>
-              </motion.div>
-            )}
-
-            {selectedTab === 'details' && (
-              <motion.div
-                key="details"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.3 }}
-                className="grid grid-cols-1 md:grid-cols-3 gap-8"
-              >
-                {selectedSolution.details.map((detail, index) => (
-                  <motion.div
-                    key={index}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3, delay: index * 0.1 }}
-                    className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 hover-scale"
-                  >
-                    <div className="p-6">
-                      <div className="mb-4">
-                        {detail.icon}
-                      </div>
-                      <h3 className="text-xl font-bold text-gray-900 mb-3">{detail.title}</h3>
-                      <p className="text-gray-600">{detail.description}</p>
-                    </div>
-                  </motion.div>
-                ))}
-              </motion.div>
-            )}
-
-            {selectedTab === 'cases' && (
-              <motion.div
-                key="cases"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.3 }}
-              >
-                {selectedSolution.caseStudies && selectedSolution.caseStudies.length > 0 ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    {selectedSolution.caseStudies.map((caseStudy, index) => (
-                      <motion.div
-                        key={index}
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ duration: 0.3, delay: index * 0.1 }}
-                        className="bg-white rounded-lg shadow-md p-6 border-t-4 border-[#42B653] hover:shadow-lg transition-all duration-300 hover-scale"
-                      >
-                        <h3 className="text-xl font-bold text-gray-900 mb-2">{caseStudy.name}</h3>
-                        <p className="text-gray-600">{caseStudy.result}</p>
-                      </motion.div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-12">
-                    <p className="text-gray-500">Casos de sucesso em breve...</p>
-                  </div>
-                )}
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-      )}
-
-      {/* Modal para visualização detalhada */}
-      <AnimatePresence>
-        {isModalOpen && selectedSolution && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4"
-            onClick={closeModal}
-          >
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              transition={{ duration: 0.3 }}
-              className="bg-white rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto"
-              onClick={e => e.stopPropagation()}
-            >
-              <div 
-                className="h-64 bg-cover bg-center relative"
-                style={{ backgroundImage: `url(${selectedSolution.image})` }}
-              >
-                <div className="absolute inset-0 bg-gradient-to-b from-black/60 to-black/80"></div>
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <h2 className="text-white text-3xl font-bold px-6 text-center drop-shadow-lg">
-                    {selectedSolution.title}
-                  </h2>
-                </div>
-                <button
-                  onClick={closeModal}
-                  className="absolute top-4 right-4 bg-white rounded-full p-2 text-gray-800 hover:text-[#42B653] transition-colors duration-300 hover:shadow-md"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
-              
-              <div className="p-6">
-                <p className="text-gray-700 mb-6">{selectedSolution.fullDescription}</p>
-                
-                <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
-                  <Check className="w-5 h-5 text-[#42B653] mr-2" />
-                  Principais Benefícios
-                </h3>
-                <ul className="mb-6 grid grid-cols-1 md:grid-cols-2 gap-2">
-                  {selectedSolution.benefits.map((benefit, index) => (
-                    <li key={index} className="flex items-center">
-                      <Check className="w-5 h-5 text-[#42B653] mr-2 flex-shrink-0" />
-                      <span>{benefit}</span>
-                    </li>
-                  ))}
-                </ul>
-                
-                <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
-                  <Settings className="w-5 h-5 text-[#42B653] mr-2" />
-                  Detalhes do Serviço
-                </h3>
-                <div className="grid grid-cols-1 gap-4 mb-6">
-                  {selectedSolution.details.map((detail, index) => (
-                    <div key={index} className="border-l-4 border-[#42B653] pl-4 hover:bg-gray-50 transition-colors duration-300 p-2 rounded-r">
-                      <h4 className="font-bold text-lg mb-1">{detail.title}</h4>
-                      <p className="text-gray-600">{detail.description}</p>
-                    </div>
-                  ))}
-                </div>
-                
-                <div className="mt-8 text-center">
-                  <button
-                    onClick={() => {
-                      closeModal();
-                      navigate(`/solucoes/${selectedSolution.id}`);
-                    }}
-                    className="bg-[#42B653] hover:bg-[#3aa348] text-white font-bold py-3 px-8 rounded-lg transition-all duration-300 inline-flex items-center transform hover:-translate-y-1 hover:shadow-lg"
-                  >
-                    Ver Página Completa
-                    <ArrowRight className="ml-2 w-5 h-5" />
-                  </button>
-                </div>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </section>
   );
 };
